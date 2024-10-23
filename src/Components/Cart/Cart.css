@@ -1,0 +1,242 @@
+.cart-btn{
+    position: relative;
+
+    .counter{
+        position: absolute;
+        background-color: red;
+        width: 15px;
+        height: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 0;
+        right: 16px;
+        border-radius: 4px;
+    }
+}
+
+
+.cart{
+    list-style: none;
+    position: relative;
+    button{
+        background: none !important;
+        border: none;
+        cursor: pointer;
+        i{
+            font-size: 20px !important;
+        }
+    }
+
+    .cart-counter{
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: red;
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+    }
+
+    .cart-notification{
+        position: absolute;
+        width: 150px;
+        background-color: red;
+        text-align: center;
+        color: white;
+        padding: 4px 4px;
+        border-radius: 25px;
+        bottom: -35px;
+        right: -56px;
+    }
+
+    .cart-notification::before {
+        content: " ";
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-bottom: 13px solid red;
+        width: 0;
+        height: 5px;
+    }
+
+}
+
+
+.cart-products-container{
+    position: fixed;
+    background-color: white;
+    max-width: 450px;
+    width: 100%;
+    min-width: 250px;
+    min-height: 200px;
+    max-height: 80vh;
+    right: 10px;
+    color: black;
+    top: 60px;
+    box-shadow: 0 0 15px gainsboro;
+    border-radius: 16px;
+
+    .cart-title{
+        h2{
+            text-align: center;
+            padding: 14px;
+            border-bottom: 2px solid var(--color-apps);
+        }
+    }
+
+    .product-cart-list{
+        max-height: 400px;
+        overflow: auto;
+        .clean-cart-container{
+            width: 100%;
+            min-height: 150px !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+    
+            h2{
+                font-size: 1.3rem !important;
+                color: gainsboro;
+            }
+    
+            i{
+                font-size: 2rem !important;
+                color: gainsboro;
+            }
+        }
+
+        .product-cart-card{
+            width: 100%;
+            display: flex;
+            height: 70px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid gainsboro;
+
+            .image{
+                margin: 0 15px 0 25px;
+                width: 60px;
+                height: 60px;
+
+                max-width: 60px;
+                min-width: 60px;
+
+                max-height: 60px;
+                min-height: 60px;
+
+                img{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: 50%;
+                }
+            }
+
+            .info{
+                width: 75%;
+            }
+
+            .controls{
+                width: 100px;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                margin-right: 26px;
+
+                button{
+                    cursor: pointer;
+                    width: 30px;
+                    height: 30px;
+                    color: white;
+                    background-color: var(--color-primary);
+                    border-radius: 6px;
+                    border: none;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    transition: 0.3s all ease;
+                }
+
+                button:hover{
+                    background-color: black !important;
+                }
+            }
+
+        }
+
+        
+    }
+
+    .cart-info{
+        width: 100%;
+        padding: 10px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--color-apps);
+    }
+    
+}
+
+.cart-products-container::before {
+    content: " ";
+    position: absolute;
+    top: -16px;
+    left: 90%;
+    transform: translateX(-50%);
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 13px solid rgb(255, 255, 255);
+    width: 0;
+    height: 5px;
+}
+
+.cart:hover{
+    background-color: #539ef33f;
+    transform: scale(1.05);
+    i{
+        color: var(--color-primary) !important;
+    }
+}
+
+@media screen  and (max-width: 766px){
+    .cart-products-container{
+        width: 96% !important;
+        max-width: 100%;
+        left: 10px;
+        top: 11px;
+        height: 89%;
+        max-height: 100%;
+    }
+
+    .cart-products-container::before {
+        right: initial !important;
+        left: 77%;
+        top: initial;
+        bottom: -40px !important;
+        z-index: 15 !important;
+        border-top: 13px solid rgb(254, 254, 254);
+        border-bottom: 25px solid transparent;
+    }
+}
+
+@media screen and (max-width: 557px) {
+    .cart-counter{
+        top: -8px !important;
+        right: -8px !important;
+    }
+    
+}
