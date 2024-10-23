@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ISales } from "../../Components/Cart/CartLink";
 import { getData } from "../../Service/Api";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import {
     Box,
     Typography,
-    MenuItem,
-    Select,
-    FormControl,
-    InputLabel,
     IconButton,
     TextField,
 } from "@mui/material";
@@ -24,7 +20,7 @@ import Navbar from "../../Components/Navbar/Navbar";
 const Solds: React.FC = () => {
     const [recibos, setRecibos] = useState<ISales[]>([]);
     const [filteredRecibos, setFilteredRecibos] = useState<ISales[]>([]);
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
     const [price, setPrice] = useState<number | string>("");
     const [consecutivo, setConsecutivo] = useState<number | string>("");
     const [orderAsc, setOrderAsc] = useState<boolean>(true);
@@ -38,8 +34,10 @@ const Solds: React.FC = () => {
         if (!response.ok) {
             console.log(response);
         } else {
-            setRecibos(response.data as ISales[]);
-            setFilteredRecibos(response.data as ISales[]);
+            if("data" in response){
+                setRecibos(response.data as ISales[]);
+                setFilteredRecibos(response.data as ISales[]);
+            }
         }
     };
 
@@ -76,8 +74,14 @@ const Solds: React.FC = () => {
     const sortRecibos = (a: ISales, b: ISales) => {
         const dateComparison = new Date(b.created).getTime() - new Date(a.created).getTime();
         if (dateComparison !== 0) return dateComparison; // Primero por fecha
-        return orderAsc ? a.consecutive - b.consecutive : b.consecutive - a.consecutive; // Luego por consecutivo
+    
+        // Establecer un valor por defecto para consecutive si es null
+        const consecutiveA = a.consecutive ?? Number.MIN_SAFE_INTEGER; // Usar un valor bajo si es null
+        const consecutiveB = b.consecutive ?? Number.MIN_SAFE_INTEGER; // Usar un valor bajo si es null
+    
+        return orderAsc ? consecutiveA - consecutiveB : consecutiveB - consecutiveA; // Luego por consecutivo
     };
+    
 
     // Ordenar los recibos según el estado de orderAsc
     const sortedRecibos = [...filteredRecibos].sort(sortRecibos);
@@ -115,10 +119,8 @@ const Solds: React.FC = () => {
                         {/* Filtro por fecha */}
                         <DesktopDatePicker
                             label="Selecciona una fecha"
-                            inputFormat="DD/MM/YYYY"
                             value={selectedDate}
-                            onChange={(newValue) => setSelectedDate(newValue)}
-                            renderInput={(params) => <TextField {...params} />}
+                            onChange={(newValue: Dayjs | null) => setSelectedDate(newValue)}
                         />
 
                         {/* Filtro por precio */}

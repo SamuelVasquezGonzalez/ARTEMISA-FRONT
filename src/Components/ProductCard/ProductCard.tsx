@@ -60,10 +60,8 @@ const ProductCard: React.FC<IProduct> = ({
     stock,
     picture,
     reload,
-    created,
 }) => {
     const { productsState, addProduct } = useProducts();
-    const [extraPrice, setExtraPrice] = useState<number>(0);
     const [productQuantity, setProductQuantity] = useState<number>(1);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -106,8 +104,8 @@ const ProductCard: React.FC<IProduct> = ({
     const validateForm = () => {
         const errors: { [key: string]: string } = {};
         if (!editProduct.name) errors.name = "El nombre es requerido.";
-        if (editProduct.price < 1) errors.price = "El precio debe ser mayor que 0.";
-        if (editProduct.stock < 0) errors.stock = "El stock no puede ser negativo.";
+        if (editProduct?.price && editProduct?.price < 1) errors.price = "El precio debe ser mayor que 0.";
+        if (editProduct?.stock && editProduct?.stock < 0) errors.stock = "El stock no puede ser negativo.";
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -169,8 +167,7 @@ const ProductCard: React.FC<IProduct> = ({
         }
     };
 
-    const isLowStock = stock < 5;
-    const totalPrice = (price + extraPrice) * productQuantity;
+    const isLowStock = stock && stock < 5;
     const findProduct = productsState.products.find(
         (product) => product._id === _id
     );
@@ -182,7 +179,9 @@ const ProductCard: React.FC<IProduct> = ({
 
     const { getRootProps, getInputProps } = useDropzone({
         onDrop,
-        accept: "image/*",
+        accept: {
+            'image/*': []
+        },
     });
 
     return (
@@ -241,7 +240,7 @@ const ProductCard: React.FC<IProduct> = ({
                     color="primary"
                     sx={{ textAlign: "center", fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.25rem" }, width: "100%" }} // Ajuste para diferentes tamaños
                 >
-                    ${price.toLocaleString()}
+                    ${price?.toLocaleString()}
                 </Typography>
                 <Typography
                     variant="caption" // Tamaño más pequeño para el stock
@@ -257,7 +256,7 @@ const ProductCard: React.FC<IProduct> = ({
                         fontSize: { xs: "0.7rem", sm: "0.8rem" }, // Ajuste para diferentes tamaños
                     }}
                 >
-                    {stock > 0
+                    {stock && stock > 0
                         ? `Stock: ${stock} ${isLowStock ? "(Bajo)" : "disponibles"}`
                         : "Agotado"}
                 </Typography>
@@ -290,7 +289,7 @@ const ProductCard: React.FC<IProduct> = ({
                     </IconButton>
                 </Box>
 
-                {stock > 0 && (
+                {stock && stock > 0 && (
                     <Stack
                         direction="row"
                         spacing={1}

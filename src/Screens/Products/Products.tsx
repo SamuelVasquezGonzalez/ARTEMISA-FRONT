@@ -13,15 +13,15 @@ import {
     FormControl,
     InputLabel,
     Typography,
+    SelectChangeEvent,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import Navbar from "../../Components/Navbar/Navbar";
 
 import { getData, sendFormData } from "../../Service/Api";
-import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
-import ProductCard, { IProduct } from "../../Components/ProductCard/ProductCard";
+import ProductCard, { IProduct, IProductCategory } from "../../Components/ProductCard/ProductCard";
 
 const Products: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -38,8 +38,6 @@ const Products: React.FC = () => {
     });
     const [image, setImage] = useState<File | null>(null);
 
-    const navigate = useNavigate();
-
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -52,25 +50,37 @@ const Products: React.FC = () => {
     const getProducts = async () => {
         const response = await getData({ token, path: "/v1/products" });
         if (response.ok && "data" in response) {
-            setProducts(response.data);
-            setFilteredProducts(response.data);
+            setProducts(response.data as IProduct[]);
+            setFilteredProducts(response.data as IProduct[]);
         }
     };
 
-    const handlePriceSort = (e: React.ChangeEvent<{ value: string }>) => {
-        const order = e.target.value as string;
+    const handlePriceSort = (event: SelectChangeEvent<string>) => {
+        const order = event.target.value; // Aquí ya no es necesario hacer casting a string
+    
         setSortByPrice(order);
-
+    
         const sortedProducts = [...filteredProducts];
+    
+        // Ordenar los productos dependiendo de la opción seleccionada
         if (order === "asc") {
-            sortedProducts.sort((a, b) => a.price - b.price);
+            sortedProducts.sort((a, b) => {
+                const priceA = a.price ?? 0; // Usa 0 si price es null
+                const priceB = b.price ?? 0; // Usa 0 si price es null
+                return priceA - priceB;
+            });
         } else if (order === "desc") {
-            sortedProducts.sort((a, b) => b.price - a.price);
+            sortedProducts.sort((a, b) => {
+                const priceA = a.price ?? 0; // Usa 0 si price es null
+                const priceB = b.price ?? 0; // Usa 0 si price es null
+                return priceB - priceA;
+            });
         }
+    
         setFilteredProducts(sortedProducts);
     };
-
-    const handleCategoryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    
+    const handleCategoryFilter = (e: SelectChangeEvent<string>) => {
         const category = e.target.value as string;
         setFilterByCategory(category);
 
@@ -83,7 +93,7 @@ const Products: React.FC = () => {
         }
     };
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         const formData = new FormData();
         formData.append("productData", JSON.stringify(newProduct));
@@ -103,7 +113,7 @@ const Products: React.FC = () => {
         }
     };
 
-    const handleCategoryChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    const handleCategoryChange = (e: SelectChangeEvent<string>) => {
         setNewProduct({
             ...newProduct,
             category: e.target.value as IProductCategory,
@@ -123,7 +133,9 @@ const Products: React.FC = () => {
 
     const { getRootProps, getInputProps } = useDropzone({
         onDrop,
-        accept: "image/*",
+        accept: {
+            "image/*": []
+        },
         maxFiles: 1,
     });
 
@@ -199,7 +211,7 @@ const Products: React.FC = () => {
                                 <InputLabel>Filtrar por categoría</InputLabel>
                                 <Select
                                     value={filterByCategory}
-                                    onChange={(e) => handleCategoryFilter(e)}
+                                    onChange={handleCategoryFilter}
                                 >
                                     <MenuItem value="">
                                         Todas las categorías
@@ -367,6 +379,7 @@ const Products: React.FC = () => {
                         variant="contained"
                         color="primary"
                         fullWidth
+                        type="submit"
                         onClick={handleSubmit}
                         sx={{ marginTop: 2 }}
                     >

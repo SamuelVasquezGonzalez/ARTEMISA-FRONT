@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useProducts } from "../../ProductContext";
 import './Cart.css'
 import { IProductSale } from "../ProductCard/ProductCard";
@@ -35,7 +35,7 @@ const CartProduct: React.FC<IProductSale> = ({picture, name, price, quantity, _i
 
             <div className="info">
                 <h3>{name}</h3>
-                <p>x{quantity} ${price.toLocaleString()}</p>
+                <p>x{quantity} ${price?.toLocaleString()}</p>
             </div>
 
                 <div className="controls controls-visible">

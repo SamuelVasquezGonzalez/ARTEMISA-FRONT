@@ -1,6 +1,6 @@
 import React from "react";
 import './NotFound.css';
-import AppsIcon from '../../assets/general-assets/appsicon.png'
+import AppsIcon from '../../assets/general-assets/complete-logo.png'
 
 const NotFound: React.FC = () => {
     return (

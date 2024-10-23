@@ -11,7 +11,6 @@ import {
 import { Email, Lock } from "@mui/icons-material";
 import { sendData } from "../../Service/Api";
 import { useAuth } from "../../UserContext";
-import Navbar from "../../Components/Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 
 export type ConfigT = {
@@ -31,7 +30,7 @@ export type LoginData = {
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const {authState, setAuthState} = useAuth()
+    const {setAuthState} = useAuth()
     const navigate = useNavigate()
 
 

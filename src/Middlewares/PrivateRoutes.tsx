@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../UserContext";
 
 interface PrivateRouteProps {
     children: JSX.Element;
@@ -10,7 +9,6 @@ interface PrivateRouteProps {
 
 const PrivateRoutes = ({ children, requiredRole }: PrivateRouteProps) => {
     const navigate = useNavigate();
-    const {authState} = useAuth()
 
     useEffect(() => {
         

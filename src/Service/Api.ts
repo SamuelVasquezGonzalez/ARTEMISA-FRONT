@@ -13,7 +13,11 @@ export type NormalSuccess = {
     message?: string,
 }
 
-export type dataType = object[] | object | LoginData
+export type DataWithConsecutive = {
+    consecutive: number;
+};
+
+export type dataType = DataWithConsecutive | object[] | object | LoginData | number | string | boolean;
 export type SuccessT = {
     ok: boolean,
     data: dataType, 
@@ -112,7 +116,7 @@ export const deleteData = async ({token = "", path}: {token?: string, path: stri
     }
 }
 
-export const sendFormData = async ({token = "", path, body, method}: {token?: string, path: string, body: string, method?: string}): Promise<LoginT | SuccessT | ErrorT> => {
+export const sendFormData = async ({token = "", path, body, method}: {token?: string, path: string, body: FormData, method?: string}): Promise<LoginT | SuccessT | ErrorT> => {
     try {
         const response = await fetch(`${BACKEND_URL}${path}`, {
             method: method ? method: "POST",

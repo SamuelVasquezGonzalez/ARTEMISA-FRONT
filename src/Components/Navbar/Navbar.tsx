@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Typography, Box } from "@mui/material";
 import ArteLogo from "../../assets/general-assets/complete-logo.png";
 import CartLink from "../Cart/CartLink";
 import { NavLink } from "react-router-dom";

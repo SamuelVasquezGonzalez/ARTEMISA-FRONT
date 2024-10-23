@@ -16,8 +16,10 @@ import {
 import { MoneyOff, Payment, CreditCard } from '@mui/icons-material';
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar";
-import { getData, sendData } from "../../Service/Api";
+import { sendData } from "../../Service/Api";
 import toast, { Toaster } from "react-hot-toast";
+
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL;
 
 const ReceiptPage = () => {
     const { productsState, clearProducts } = useProducts();
@@ -49,7 +51,7 @@ const ReceiptPage = () => {
 
 
     useEffect(() => {
-        if(receipt?.products.length > 0){
+        if(receipt?.products && receipt?.products.length > 0){
             handleSubmit();
         }
     }, [receipt])
@@ -93,13 +95,33 @@ const ReceiptPage = () => {
     };
 
     const getLastConsecutive = async () => {
-        const response = await getData({ token, path: "/v1/sales/last" });
-
-        if (response.ok) {
-            setLastConsecutive(response.data.consecutive as number);
+        try {
+            const response = await fetch(`${BACKEND_URL}/v1/sales/last`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                if (typeof data === 'object' && data !== null && 'consecutive' in data) {
+                    const lastConsecutive = data.consecutive;
+                    setLastConsecutive(lastConsecutive)
+                } else {
+                    console.error('Error: La propiedad consecutive no existe en data');
+                }
+            } else {
+                console.error('Error en la respuesta:', data);
+            }
+        } catch (error) {
+            console.error('Error en el fetch:', error);
         }
     };
-
+    
+    
     useEffect(() => {
         getLastConsecutive();
         setIsSaved(false);
@@ -211,7 +233,7 @@ const ReceiptPage = () => {
                             <CardMedia
                                 component="img"
                                 height="70"
-                                image={product.picture.url}
+                                image={product?.picture?.url}
                                 alt={product.name}
                             />
                             <CardContent>
@@ -225,7 +247,7 @@ const ReceiptPage = () => {
                                     variant="body2"
                                     color="text.primary"
                                 >
-                                    ${product.price.toLocaleString()} x {product.quantity}
+                                    ${product?.price && product?.price.toLocaleString()} x {product.quantity}
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -262,7 +284,7 @@ const ReceiptPage = () => {
                                     >
                                         <Typography>{product.name}</Typography>
                                         <Typography>
-                                            ${product.price.toLocaleString()} x{" "}
+                                            ${product?.price && product.price.toLocaleString()} x{" "}
                                             {product.quantity}
                                         </Typography>
                                     </Box>

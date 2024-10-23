@@ -35,7 +35,13 @@ export const ProductsProvider: React.FC<{ children: ReactNode }> = ({ children }
                 : p
             );
 
-            const updatedTotal = updatedProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const updatedTotal = updatedProducts.reduce((sum, item) => {
+                // Verifica que el objeto item no sea null o undefined y que price y quantity existan
+                if (item && item.price && item.quantity) {
+                    return sum + item.price * item.quantity;
+                }
+                return sum; // Si no hay precio o cantidad, simplemente retorna la suma actual
+            }, 0);
 
             return {
                 ...prevState,
@@ -45,7 +51,13 @@ export const ProductsProvider: React.FC<{ children: ReactNode }> = ({ children }
         } else {
             const updatedProducts = [...prevState.products, { ...product}]; 
             
-            const updatedTotal = updatedProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const updatedTotal = updatedProducts.reduce((sum, item) => {
+                // Verifica que el objeto item no sea null o undefined y que price y quantity existan
+                if (item && item.price && item.quantity) {
+                    return sum + item.price * item.quantity;
+                }
+                return sum; // Si no hay precio o cantidad, simplemente retorna la suma actual
+            }, 0);
             
             return {
                 ...prevState,
@@ -59,7 +71,21 @@ export const ProductsProvider: React.FC<{ children: ReactNode }> = ({ children }
 const updateProductQuantity = (productId: string, quantity: number) => {
     setProductsState((prevState) => {
         if (quantity <= 0) {
-            return removeProduct(productId);
+            // removeProduct debe devolver el nuevo estado completo
+            const updatedProducts = prevState.products.filter(product => product._id !== productId);
+
+            const updatedTotal = updatedProducts.reduce((sum, item) => {
+                if (item && item.price && item.quantity) {
+                    return sum + item.price * item.quantity;
+                }
+                return sum;
+            }, 0);
+
+            return {
+                ...prevState,
+                products: updatedProducts,
+                totalPrice: updatedTotal
+            };
         }
 
         const updatedProducts = prevState.products.map((product) => {
@@ -72,7 +98,12 @@ const updateProductQuantity = (productId: string, quantity: number) => {
             return product;
         });
 
-        const updatedTotal = updatedProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0); // Multiplicamos el precio por la cantidad
+        const updatedTotal = updatedProducts.reduce((sum, item) => {
+            if (item && item.price && item.quantity) {
+                return sum + item.price * item.quantity;
+            }
+            return sum;
+        }, 0);
 
         return {
             ...prevState,
@@ -82,18 +113,22 @@ const updateProductQuantity = (productId: string, quantity: number) => {
     });
 };
 
-    const removeProduct = (productId: string) => {
-        setProductsState((prevState) => {
-            const updatedProducts = prevState.products.filter((product) => product._id !== productId);
-            const updatedTotal = updatedProducts.reduce((sum, item) => sum + item?.price, 0);
+const removeProduct = (productId: string) => {
+    setProductsState((prevState) => {
+        const updatedProducts = prevState.products.filter((product) => product._id !== productId);
 
-            return {
-                ...prevState,
-                products: updatedProducts,
-                totalPrice: updatedTotal
-            };
-        });
-    };
+        const updatedTotal = updatedProducts.reduce((sum, item) => {
+            // Si item.price es null o undefined, usamos 0
+            return sum + (item?.price ?? 0);
+        }, 0);
+
+        return {
+            ...prevState,
+            products: updatedProducts,
+            totalPrice: updatedTotal
+        };
+    });
+};
 
     const clearProducts = () => {
         setProductsState({
