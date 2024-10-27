@@ -28,7 +28,6 @@ const ReceiptPage = () => {
     const [receipt, setReceipt] = useState<ISales | null>(null);
     const [isSaved, setIsSaved] = useState<boolean>(true);
     const [lastConsecutive, setLastConsecutive] = useState<number>(0);
-    const [countdown, setCountdown] = useState<number | null>(null);
     const navigate = useNavigate();
 
     const token = localStorage.getItem("token") || undefined;
@@ -74,25 +73,13 @@ const ReceiptPage = () => {
         if (response.ok) {
             success("Se ha guardado esta venta");
             setIsSaved(true);
-            startCountdown();
+            clearProducts()
+            navigate("/recibos");
         } else {
             error("No pudimos guardar esta venta");
         }
     };
 
-    const startCountdown = () => {
-        let seconds = 3;
-        setCountdown(seconds);
-        const interval = setInterval(() => {
-            seconds -= 1;
-            setCountdown(seconds);
-            if (seconds === 0) {
-                clearInterval(interval);
-                clearProducts();
-                navigate("/recibos");
-            }
-        }, 1000);
-    };
     const getLastConsecutive = async () => {
         if (token) {
             try {
@@ -207,12 +194,6 @@ const ReceiptPage = () => {
                 >
                     {isSaved ? "Ya se ha guardado este recibo" : "Continuar y generar recibo"}
                 </Button>
-
-                {countdown !== null && (
-                    <Typography variant="h6" align="center" color="error">
-                        Serás redirigido en {countdown} segundos...
-                    </Typography>
-                )}
 
 
                 <Divider style={{ margin: "20px 0" }} />

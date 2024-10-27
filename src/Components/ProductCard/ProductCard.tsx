@@ -43,12 +43,12 @@ export interface IProduct {
     name: string;
     category: IProductCategory;
     price: number | null;
-    buyPrice: number | null
+    buyPrice: number | null;
     stock: number | null;
     picture?: Picture;
     created?: Date;
     reload?: () => void;
-    isStat?: boolean
+    isStat?: boolean;
 }
 
 export interface IProductSale extends IProduct {
@@ -64,7 +64,7 @@ const ProductCard: React.FC<IProduct> = ({
     picture,
     reload,
     buyPrice,
-    isStat
+    isStat,
 }) => {
     const { productsState, addProduct } = useProducts();
     const [productQuantity, setProductQuantity] = useState<number>(1);
@@ -76,7 +76,7 @@ const ProductCard: React.FC<IProduct> = ({
         category,
         price: price || null,
         stock: stock || null,
-        buyPrice: buyPrice || null
+        buyPrice: buyPrice || null,
     });
     const [image, setImage] = useState<File | null>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -110,8 +110,10 @@ const ProductCard: React.FC<IProduct> = ({
     const validateForm = () => {
         const errors: { [key: string]: string } = {};
         if (!editProduct.name) errors.name = "El nombre es requerido.";
-        if (editProduct?.price && editProduct?.price < 1) errors.price = "El precio debe ser mayor que 0.";
-        if (editProduct?.stock && editProduct?.stock < 0) errors.stock = "El stock no puede ser negativo.";
+        if (editProduct?.price && editProduct?.price < 1)
+            errors.price = "El precio debe ser mayor que 0.";
+        if (editProduct?.stock && editProduct?.stock < 0)
+            errors.stock = "El stock no puede ser negativo.";
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -187,184 +189,243 @@ const ProductCard: React.FC<IProduct> = ({
     const { getRootProps, getInputProps } = useDropzone({
         onDrop,
         accept: {
-            'image/*': []
+            "image/*": [],
         },
     });
 
-    console.log(isStat)
+    console.log(isStat);
 
     return (
         <>
             <Grid item xs={6} sm={6} md={4} lg={3} key={_id}>
-    <Card
-        sx={{
-            width: "100%",
-            borderRadius: 2,
-            boxShadow: 3,
-            backgroundColor: "#f9f9f9",
-            transition: "transform 0.25s, box-shadow 0.25s",
-            "&:hover": {
-                transform: "scale(1.03)",
-                boxShadow: 6,
-            },
-            position: "relative",
-        }}
-    >
-        <CardActionArea onClick={() => console.log(`Clicked product: ${_id}`)}>
-            <CardMedia
-                component="img"
-                height="180"
-                image={
-                    image
-                        ? URL.createObjectURL(image)
-                        : picture?.url || "/placeholder-image.png"
-                }
-                alt={name}
-                sx={{
-                    objectFit: "cover",
-                    backgroundColor: "#e0e0e0",
-                    borderRadius: "8px 8px 0 0",
-                }}
-            />
-            <CardContent sx={{ padding: "12px" }}>
-                <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    sx={{ color: "#333", textAlign: "center", fontSize: { xs: "1rem", sm: "1.25rem" } }}
-                >
-                    {name}
-                </Typography>
-                <Typography
+                <Card
                     sx={{
-                        textAlign: "center",
-                        marginBottom: "4px",
-                        fontSize: { xs: "0.8rem", sm: "0.9rem" },
-                        color: "#666",
+                        width: "100%",
+                        borderRadius: 2,
+                        boxShadow: 3,
+                        backgroundColor: "#f9f9f9",
+                        transition: "transform 0.25s, box-shadow 0.25s",
+                        "&:hover": {
+                            transform: "scale(1.03)",
+                            boxShadow: 6,
+                        },
+                        position: "relative",
+                        minHeight: "462px !important"
                     }}
                 >
-                    {category}
-                </Typography>
-                <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    sx={{ textAlign: "center", fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.15rem" } }}
-                >
-                    Compra: ${buyPrice?.toLocaleString()}
-                </Typography>
-                <Typography
-                    variant="body1"
-                    color="primary"
-                    sx={{ textAlign: "center", fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.15rem" } }}
-                >
-                    Venta: ${price?.toLocaleString()}
-                </Typography>
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        zIndex: 10,
-                        display: "flex",
-                        gap: 0.5,
-                    }}
-                >
-                    <IconButton
-                        onClick={handleOpenModal}
-                        aria-label="edit"
-                        
-                        color="primary"
-                        sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
+                    <CardActionArea
+                        onClick={() => console.log(`Clicked product: ${_id}`)}
                     >
-                        <EditIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
-                        aria-label="delete"
-                        color="secondary"
-                        onClick={handleOpenDeleteModal}
-                        sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
-                    >
-                        <DeleteIcon fontSize="inherit" />
-                    </IconButton>
-                </Box>
-                {stock && stock > 0 ? (
-                    <Chip
-                        label={`Stock: ${stock} ${isLowStock ? "(Bajo)" : "disponibles"}`}
-                        color={isLowStock ? "error" : "success"}
-                        sx={{
-                            position: "absolute",
-                            left: 8,
-                            top: 8,
-                            fontSize: { xs: "0.7rem", sm: "0.8rem" },
-                            fontWeight: "bold",
-                        }}
-                    />
-                ) : (
-                    <Chip
-                        label="Agotado"
-                        color="error"
-                        sx={{
-                            position: "absolute",
-                            left: 8,
-                            top: 8,
-                            fontSize: { xs: "0.7rem", sm: "0.8rem" },
-                            fontWeight: "bold",
-                        }}
-                    />
-                )}
-                
-                {(stock && stock > 0) && !isStat ? (
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        justifyContent="center"
-                        flexWrap="wrap"
-                        alignItems="center"
-                        sx={{ marginTop: "12px" }}
-                    >
-                        <IconButton
-                            disabled={stock === 0 || findProduct?._id === _id}
-                            onClick={() => {
-                                if (productQuantity > 1) {
-                                    setProductQuantity(productQuantity - 1);
-                                }
+                        <CardMedia
+                            component="img"
+                            height="180"
+                            image={
+                                image
+                                    ? URL.createObjectURL(image)
+                                    : picture?.url || "/placeholder-image.png"
+                            }
+                            alt={name}
+                            sx={{
+                                objectFit: "cover",
+                                backgroundColor: "#e0e0e0",
+                                borderRadius: "8px 8px 0 0",
                             }}
-                            aria-label="reducir stock"
-                            color="secondary"
-                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
-                        >
-                            <RemoveIcon fontSize="inherit" />
-                        </IconButton>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<ShoppingCartIcon />}
-                            onClick={addToCart}
-                            disabled={stock === 0 || findProduct?._id === _id}
-                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
-                        >
-                            Añadir {productQuantity > 0 && `(${productQuantity})`}
-                        </Button>
-                        <IconButton
-                            disabled={stock === 0 || findProduct?._id === _id}
-                            onClick={() => {
-                                if (stock && productQuantity < stock) {
-                                    setProductQuantity(productQuantity + 1);
-                                }
-                            }}
-                            aria-label="aumentar stock"
-                            color="primary"
-                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
-                        >
-                            <AddIcon fontSize="inherit" />
-                        </IconButton>
-                    </Stack>
-                ): null}
-            </CardContent>
-        </CardActionArea>
-    </Card>
-</Grid>
+                        />
+                        <CardContent sx={{ padding: "12px" }}>
+                            <Typography
+                                variant="h6"
+                                fontWeight="bold"
+                                sx={{
+                                    color: "#333",
+                                    textAlign: "center",
+                                    fontSize: { xs: "1rem", sm: "1.25rem" },
+                                }}
+                            >
+                                {name}
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    textAlign: "center",
+                                    marginBottom: "4px",
+                                    fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                                    color: "#666",
+                                }}
+                            >
+                                {category}
+                            </Typography>
+                            {buyPrice && (
+                                <Typography
+                                variant="body1"
+                                color="text.secondary"
+                                sx={{
+                                    textAlign: "center",
+                                    fontWeight: "bold",
+                                    fontSize: { xs: "1rem", sm: "1.15rem" },
+                                }}
+                            >
+                                Compra: ${buyPrice?.toLocaleString()}
+                            </Typography>
+                            )}
+                            <Typography
+                                variant="body1"
+                                color="primary"
+                                sx={{
+                                    textAlign: "center",
+                                    fontWeight: "bold",
+                                    fontSize: { xs: "1rem", sm: "1.15rem" },
+                                }}
+                            >
+                                Venta: ${price?.toLocaleString()}
+                            </Typography>
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    top: 45,
+                                    right: 8,
+                                    zIndex: 10,
+                                    display: "flex",
+                                    gap: 0.5,
+                                }}
+                            >
+                                <IconButton
+                                    onClick={handleOpenModal}
+                                    aria-label="edit"
+                                    color="primary"
+                                    sx={{
+                                        fontSize: { xs: "1rem", sm: "1rem" },
+                                    }}
+                                >
+                                    <EditIcon fontSize="inherit" />
+                                </IconButton>
+                                <IconButton
+                                    aria-label="delete"
+                                    color="secondary"
+                                    onClick={handleOpenDeleteModal}
+                                    sx={{
+                                        fontSize: { xs: "1rem", sm: "1rem" },
+                                    }}
+                                >
+                                    <DeleteIcon fontSize="inherit" />
+                                </IconButton>
+                            </Box>
+                            {stock && stock > 0 ? (
+                                <Chip
+                                    label={`Stock: ${stock} ${
+                                        isLowStock ? "(Bajo)" : "disponibles"
+                                    }`}
+                                    color={isLowStock ? "error" : "success"}
+                                    sx={{
+                                        position: "absolute",
+                                        left: 8,
+                                        top: 8,
+                                        fontSize: {
+                                            xs: "0.7rem",
+                                            sm: "0.8rem",
+                                        },
+                                        fontWeight: "bold",
+                                    }}
+                                />
+                            ) : (
+                                <Chip
+                                    label="Agotado"
+                                    color="error"
+                                    sx={{
+                                        position: "absolute",
+                                        left: 8,
+                                        top: 8,
+                                        fontSize: {
+                                            xs: "0.7rem",
+                                            sm: "0.8rem",
+                                        },
+                                        fontWeight: "bold",
+                                    }}
+                                />
+                            )}
 
-
+                            {stock && stock > 0 && !isStat ? (
+                                <Stack
+                                    direction={{ xs: "column", sm: "row" }} // Cambiar a columna en pantallas pequeñas
+                                    spacing={2} // Aumentar el espaciado
+                                    justifyContent="center"
+                                    flexWrap="wrap"
+                                    alignItems="center"
+                                    sx={{ marginTop: "12px" }}
+                                >
+                                    <IconButton
+                                        disabled={
+                                            stock === 0 ||
+                                            findProduct?._id === _id
+                                        }
+                                        onClick={() => {
+                                            if (productQuantity > 1) {
+                                                setProductQuantity(
+                                                    productQuantity - 1
+                                                );
+                                            }
+                                        }}
+                                        aria-label="reducir stock"
+                                        color="secondary"
+                                        sx={{
+                                            fontSize: {
+                                                xs: "0.8rem",
+                                                sm: "1rem",
+                                            },
+                                        }}
+                                    >
+                                        <RemoveIcon fontSize="inherit" />
+                                    </IconButton>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        startIcon={<ShoppingCartIcon />}
+                                        onClick={addToCart}
+                                        disabled={
+                                            stock === 0 ||
+                                            findProduct?._id === _id
+                                        }
+                                        sx={{
+                                            fontSize: {
+                                                xs: "0.8rem",
+                                                sm: "1rem",
+                                            },
+                                        }}
+                                    >
+                                        Añadir{" "}
+                                        {productQuantity > 0 &&
+                                            `(${productQuantity})`}
+                                    </Button>
+                                    <IconButton
+                                        disabled={
+                                            stock === 0 ||
+                                            findProduct?._id === _id
+                                        }
+                                        onClick={() => {
+                                            if (
+                                                stock &&
+                                                productQuantity < stock
+                                            ) {
+                                                setProductQuantity(
+                                                    productQuantity + 1
+                                                );
+                                            }
+                                        }}
+                                        aria-label="aumentar stock"
+                                        color="primary"
+                                        sx={{
+                                            fontSize: {
+                                                xs: "0.8rem",
+                                                sm: "1rem",
+                                            },
+                                        }}
+                                    >
+                                        <AddIcon fontSize="inherit" />
+                                    </IconButton>
+                                </Stack>
+                            ) : null}
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+            </Grid>
 
             {/* Modal para editar producto */}
             <Modal open={isModalOpen} onClose={handleCloseModal}>
@@ -410,7 +471,10 @@ const ProductCard: React.FC<IProduct> = ({
                             fullWidth
                             value={editProduct.buyPrice || null}
                             onChange={(e) =>
-                                handleEditChange("buyPrice", Number(e.target.value))
+                                handleEditChange(
+                                    "buyPrice",
+                                    Number(e.target.value)
+                                )
                             }
                             error={!!formErrors.price}
                             helperText={formErrors.price}
@@ -423,7 +487,10 @@ const ProductCard: React.FC<IProduct> = ({
                             fullWidth
                             value={editProduct.price || null}
                             onChange={(e) =>
-                                handleEditChange("price", Number(e.target.value))
+                                handleEditChange(
+                                    "price",
+                                    Number(e.target.value)
+                                )
                             }
                             error={!!formErrors.price}
                             helperText={formErrors.price}
@@ -436,7 +503,10 @@ const ProductCard: React.FC<IProduct> = ({
                             fullWidth
                             value={editProduct.stock || null}
                             onChange={(e) =>
-                                handleEditChange("stock", Number(e.target.value))
+                                handleEditChange(
+                                    "stock",
+                                    Number(e.target.value)
+                                )
                             }
                             error={!!formErrors.stock}
                             helperText={formErrors.stock}
@@ -453,15 +523,22 @@ const ProductCard: React.FC<IProduct> = ({
                                 <MenuItem value="Belleza">Belleza</MenuItem>
                                 <MenuItem value="Salud">Salud</MenuItem>
                                 <MenuItem value="Perfumes">Perfumes</MenuItem>
-                                <MenuItem value="Accesorios">Accesorios</MenuItem>
+                                <MenuItem value="Accesorios">
+                                    Accesorios
+                                </MenuItem>
                                 <MenuItem value="Tenis">Tenis</MenuItem>
                                 <MenuItem value="Camisas/Camisetas">
                                     Camisas/Camisetas
                                 </MenuItem>
-                                <MenuItem value="Pantalones">Pantalones</MenuItem>
+                                <MenuItem value="Pantalones">
+                                    Pantalones
+                                </MenuItem>
                             </Select>
                         </FormControl>
-                        <Box {...getRootProps()} sx={{ border: "2px dashed gray", p: 2, mb: 2 }}>
+                        <Box
+                            {...getRootProps()}
+                            sx={{ border: "2px dashed gray", p: 2, mb: 2 }}
+                        >
                             <input {...getInputProps()} />
                             <p>
                                 {image
@@ -469,7 +546,12 @@ const ProductCard: React.FC<IProduct> = ({
                                     : "Arrastra y suelta una imagen aquí, o haz clic para seleccionar una imagen"}
                             </p>
                         </Box>
-                        <Button type="submit" variant="contained" color="primary" fullWidth>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                        >
                             Actualizar
                         </Button>
                     </form>
@@ -500,10 +582,17 @@ const ProductCard: React.FC<IProduct> = ({
                         ¿Estás seguro de eliminar este producto?
                     </Typography>
                     <Stack direction="row" spacing={2}>
-                        <Button variant="contained" color="secondary" onClick={deleteProduct}>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={deleteProduct}
+                        >
                             Eliminar
                         </Button>
-                        <Button variant="outlined" onClick={handleCloseDeleteModal}>
+                        <Button
+                            variant="outlined"
+                            onClick={handleCloseDeleteModal}
+                        >
                             Cancelar
                         </Button>
                     </Stack>

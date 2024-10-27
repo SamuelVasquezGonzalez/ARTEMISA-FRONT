@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import { Button } from "@mui/material";
 import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import { IProductSale } from "../ProductCard/ProductCard";
+import CloseIcon from '@mui/icons-material/Close';
 
 
 export type PayType = "Transferencia" | "Efectivo" | "Tarjeta"
@@ -98,6 +99,7 @@ const CartLink: React.FC = () => {
                 >
                     <div className="cart-title">
                         <h2>Carrito de productos</h2>
+                        <button onClick={() => onOpen(false)} className="close-cart-btn"><CloseIcon/></button>
                     </div>
 
                     <div className="product-cart-list">
