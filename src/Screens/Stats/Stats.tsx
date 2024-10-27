@@ -52,7 +52,7 @@ const Stats: React.FC = () => {
                 </div>
 
                 <h2 style={{marginTop: "20px"}}>
-                    Productos más vendidos
+                    Productos más facturados
                 </h2>
 
                 <Grid container spacing={4} justifyContent="center" margin={"20px"}>

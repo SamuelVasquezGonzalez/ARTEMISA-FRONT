@@ -253,7 +253,7 @@ const ProductCard: React.FC<IProduct> = ({
                             >
                                 {category}
                             </Typography>
-                            {buyPrice && (
+                            {buyPrice ? (
                                 <Typography
                                 variant="body1"
                                 color="text.secondary"
@@ -265,7 +265,7 @@ const ProductCard: React.FC<IProduct> = ({
                             >
                                 Compra: ${buyPrice?.toLocaleString()}
                             </Typography>
-                            )}
+                            ): null}
                             <Typography
                                 variant="body1"
                                 color="primary"
