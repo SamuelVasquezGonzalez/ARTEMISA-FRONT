@@ -1,10 +1,7 @@
 import React, { lazy, Suspense } from "react";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LoadingFallback } from "./Fallback/Fallback";
 import PrivateRoutes from "../Middlewares/PrivateRoutes";
-import { Fab } from "@mui/material";
-
-import { useAuth } from "../UserContext";
 import SignOut from "../Components/SignOut/SignOut";
 
 // Screens imports using LazyLoading
