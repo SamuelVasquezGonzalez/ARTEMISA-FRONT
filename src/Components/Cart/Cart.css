@@ -10,7 +10,7 @@
         justify-content: center;
         align-items: center;
         top: 0;
-        right: 16px;
+        right: 0;
         border-radius: 4px;
     }
 }
@@ -18,6 +18,8 @@
 
 .cart{
     list-style: none;
+    width: 30px;
+    height: 30px;
     position: relative;
     button{
         background: none !important;
@@ -31,7 +33,7 @@
     .cart-counter{
         position: absolute;
         top: 0;
-        right: 0;
+        right: 8px;
         background-color: red;
         width: 18px;
         height: 18px;
@@ -127,7 +129,6 @@
         .product-cart-card{
             width: 100%;
             display: flex;
-            height: 70px;
             margin: 20px 0;
             padding: 5px 0;
             justify-content: space-between;
@@ -247,7 +248,6 @@
 @media screen and (max-width: 557px) {
     .cart-counter{
         top: -8px !important;
-        right: -8px !important;
     }
     
 }

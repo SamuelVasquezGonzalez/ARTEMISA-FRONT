@@ -81,7 +81,7 @@ const CartLink: React.FC = () => {
                 <div className="cart-counter">
                     {productsState.products.length}
                 </div>
-                <Button color="inherit" ref={cartButtonRef} onClick={handleCartButtonClick}>
+                <Button sx={{width: "30px !important", height: "30px !important", padding: 0 }} color="inherit" ref={cartButtonRef} onClick={handleCartButtonClick}>
                     <ReceiptOutlinedIcon />
                 </Button>
                 {showNotify && (
