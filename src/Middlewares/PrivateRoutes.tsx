@@ -25,14 +25,14 @@ const PrivateRoutes = ({ children, requiredRole }: PrivateRouteProps) => {
                 }
 
                 if(actualDate >= exp){
-                    navigate(`/login?type=exp`);
+                    navigate(`/`);
                 }
             } catch (error) {
                 console.error("Error decoding token:", error);
                 navigate(-1);
             }
         } else {
-            navigate("/login");
+            navigate("/");
         }
     }, [navigate, requiredRole]);
 

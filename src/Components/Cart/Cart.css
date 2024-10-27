@@ -25,15 +25,12 @@
         background: none !important;
         border: none;
         cursor: pointer;
-        i{
-            font-size: 20px !important;
-        }
     }
 
     .cart-counter{
         position: absolute;
         top: 0;
-        right: 8px;
+        right: 25px;
         background-color: red;
         width: 18px;
         height: 18px;

@@ -29,7 +29,7 @@ const Home: React.FC = () => {
                 justifyContent="center"
                 alignItems="center"
                 style={{ height: "100vh" }}
-                padding={"0 20px"}
+                padding={"50px 20px 0 20px"}
             >
                 <Grid item xs={12} sm={6} md={3}>
                     <Card

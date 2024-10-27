@@ -12,6 +12,7 @@ import { Email, Lock } from "@mui/icons-material";
 import { sendData } from "../../Service/Api";
 import { useAuth } from "../../UserContext";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 export type ConfigT = {
     role?: string;
@@ -33,11 +34,13 @@ const Login: React.FC = () => {
     const {setAuthState} = useAuth()
     const navigate = useNavigate()
 
+    const success = (mss: string) => toast.success(mss)
+    const error = (mss: string) => toast.error(mss)
+
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault() 
         const response = await sendData({path: "/v1/login", body: {email, password}})  as LoginData
-        console.log(response)
 
         if(response.ok){
             if("data" in response){
@@ -47,6 +50,10 @@ const Login: React.FC = () => {
                 })
                 localStorage.setItem("token", response.data.accessToken)
                 localStorage.setItem("s", JSON.stringify({_id: response.data._id, role: response.data.role}))
+            }
+        }else{
+            if("error" in response){
+                error("contraseña incorrecta")
             }
         }
 
@@ -164,6 +171,7 @@ const Login: React.FC = () => {
                     </Box>
                 </Box>
             </Paper>
+            <Toaster />
         </Container>
     );
 };
