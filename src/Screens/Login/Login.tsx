@@ -34,7 +34,6 @@ const Login: React.FC = () => {
     const {setAuthState} = useAuth()
     const navigate = useNavigate()
 
-    const success = (mss: string) => toast.success(mss)
     const error = (mss: string) => toast.error(mss)
 
 
