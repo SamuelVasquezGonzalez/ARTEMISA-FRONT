@@ -107,7 +107,7 @@ const CartLink: React.FC = () => {
                                 <i className="ri-shopping-cart-line"></i>
                             </div>
                         ) : (
-                            productsState.products.map(({ name, quantity, price, picture, _id, stock, category }) => (
+                            productsState.products.map(({ name, quantity, price, picture, _id, stock, category, buyPrice }) => (
                                 <CartProduct
                                     key={_id}
                                     name={name}
@@ -117,6 +117,7 @@ const CartLink: React.FC = () => {
                                     _id={_id}
                                     stock={stock}
                                     category={category}
+                                    buyPrice={buyPrice}
                                 />
                             ))
                         )}

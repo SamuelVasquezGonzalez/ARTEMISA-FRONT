@@ -1,0 +1,13 @@
+.chart-item{
+    max-width: 450px;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 0 10px rgb(179, 179, 179);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 20px ;
+    border-radius: 12px;
+    padding: 10px;
+    max-height: 300px;
+}

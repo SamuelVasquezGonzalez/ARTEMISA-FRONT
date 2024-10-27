@@ -15,6 +15,7 @@ const NotFound = lazy(() => import("../Screens/NotFound/NotFound"))
 const Products = lazy(() => import("../Screens/Products/Products"))
 const ReceiptPage = lazy(() => import("../Screens/CreateBill/CreateBill"))
 const Solds = lazy(() => import("../Screens/Solds/Solds"))
+const Stats = lazy(() => import("../Screens/Stats/Stats"))
 
 export const RoutesMiddleware: React.FC = () => {
 
@@ -48,6 +49,11 @@ export const RoutesMiddleware: React.FC = () => {
                     <Route path="/recibos" element={
                     <PrivateRoutes requiredRole={["Admin"]}>
                         <Solds />
+                    </PrivateRoutes>} />
+                    
+                    <Route path="/estadistica" element={
+                    <PrivateRoutes requiredRole={["Admin"]}>
+                        <Stats />
                     </PrivateRoutes>} />
                 </Routes>
             </Suspense>

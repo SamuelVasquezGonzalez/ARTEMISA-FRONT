@@ -81,7 +81,7 @@ const ReceiptPage = () => {
     };
 
     const startCountdown = () => {
-        let seconds = 5;
+        let seconds = 3;
         setCountdown(seconds);
         const interval = setInterval(() => {
             seconds -= 1;
@@ -89,35 +89,33 @@ const ReceiptPage = () => {
             if (seconds === 0) {
                 clearInterval(interval);
                 clearProducts();
-                navigate("/productos");
+                navigate("/recibos");
             }
         }, 1000);
     };
-
     const getLastConsecutive = async () => {
-        try {
-            const response = await fetch(`${BACKEND_URL}/v1/sales/last`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+        if (token) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/v1/sales/last`, {
+                    method: 'GET',
+                    headers: {
+                        authorization: token,
+                        'Content-Type': 'application/json',
+                    },
+                });
     
-            const data = await response.json();
+                const data = await response.json();
     
-            if (response.ok) {
-                if (typeof data === 'object' && data !== null && 'consecutive' in data) {
-                    const lastConsecutive = data.consecutive;
-                    setLastConsecutive(lastConsecutive)
+                console.log(data);
+                if (response.ok) {
+                    const lastConsecutive = data.data.consecutive;
+                    setLastConsecutive(lastConsecutive);
                 } else {
-                    console.error('Error: La propiedad consecutive no existe en data');
+                    console.error('Error en la respuesta:', data);
                 }
-            } else {
-                console.error('Error en la respuesta:', data);
+            } catch (error) {
+                console.error('Error en el fetch:', error);
             }
-        } catch (error) {
-            console.error('Error en el fetch:', error);
         }
     };
     

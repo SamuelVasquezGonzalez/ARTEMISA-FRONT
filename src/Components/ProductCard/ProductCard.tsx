@@ -16,6 +16,7 @@ import {
     Select,
     MenuItem,
     InputLabel,
+    Chip,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AddIcon from "@mui/icons-material/Add";
@@ -42,10 +43,12 @@ export interface IProduct {
     name: string;
     category: IProductCategory;
     price: number | null;
+    buyPrice: number | null
     stock: number | null;
     picture?: Picture;
     created?: Date;
     reload?: () => void;
+    isStat?: boolean
 }
 
 export interface IProductSale extends IProduct {
@@ -60,6 +63,8 @@ const ProductCard: React.FC<IProduct> = ({
     stock,
     picture,
     reload,
+    buyPrice,
+    isStat
 }) => {
     const { productsState, addProduct } = useProducts();
     const [productQuantity, setProductQuantity] = useState<number>(1);
@@ -71,6 +76,7 @@ const ProductCard: React.FC<IProduct> = ({
         category,
         price: price || null,
         stock: stock || null,
+        buyPrice: buyPrice || null
     });
     const [image, setImage] = useState<File | null>(null);
     const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -118,6 +124,7 @@ const ProductCard: React.FC<IProduct> = ({
             stock,
             picture,
             name,
+            buyPrice,
             quantity: productQuantity,
             price,
             category,
@@ -184,20 +191,23 @@ const ProductCard: React.FC<IProduct> = ({
         },
     });
 
+    console.log(isStat)
+
     return (
         <>
             <Grid item xs={6} sm={6} md={4} lg={3} key={_id}>
     <Card
         sx={{
-            width: "100%", // Asegurarse de que la tarjeta ocupe todo el ancho del Grid
+            width: "100%",
             borderRadius: 2,
-            boxShadow: 4,
-            backgroundColor: "#f5f5f5",
-            transition: "transform 0.3s",
+            boxShadow: 3,
+            backgroundColor: "#f9f9f9",
+            transition: "transform 0.25s, box-shadow 0.25s",
             "&:hover": {
-                transform: "scale(1.02)",
+                transform: "scale(1.03)",
+                boxShadow: 6,
             },
-            position: "relative", // Para posicionar correctamente elementos absolutos
+            position: "relative",
         }}
     >
         <CardActionArea onClick={() => console.log(`Clicked product: ${_id}`)}>
@@ -211,56 +221,43 @@ const ProductCard: React.FC<IProduct> = ({
                 }
                 alt={name}
                 sx={{
-                    objectFit: "contain",
+                    objectFit: "cover",
                     backgroundColor: "#e0e0e0",
+                    borderRadius: "8px 8px 0 0",
                 }}
             />
-            <CardContent sx={{ padding: "8px" }}>
+            <CardContent sx={{ padding: "12px" }}>
                 <Typography
-                    variant="body1" // Reducir tamaño de fuente
+                    variant="h6"
                     fontWeight="bold"
-                    sx={{ color: "#333", textAlign: "center", fontSize: { xs: "1rem", sm: "1.25rem" } }} // Ajuste para diferentes tamaños
+                    sx={{ color: "#333", textAlign: "center", fontSize: { xs: "1rem", sm: "1.25rem" } }}
                 >
                     {name}
                 </Typography>
                 <Typography
                     sx={{
-                        textAlign: "center !important",
+                        textAlign: "center",
                         marginBottom: "4px",
                         fontSize: { xs: "0.8rem", sm: "0.9rem" },
-                        width: "100% !important",
-                        display: "block"
-
+                        color: "#666",
                     }}
                 >
                     {category}
                 </Typography>
                 <Typography
-                    variant="body1" // Tamaño más pequeño para el precio
-                    color="primary"
-                    sx={{ textAlign: "center", fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.25rem" }, width: "100%" }} // Ajuste para diferentes tamaños
+                    variant="body1"
+                    color="text.secondary"
+                    sx={{ textAlign: "center", fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.15rem" } }}
                 >
-                    ${price?.toLocaleString()}
+                    Compra: ${buyPrice?.toLocaleString()}
                 </Typography>
                 <Typography
-                    variant="caption" // Tamaño más pequeño para el stock
-                    sx={{
-                        color: isLowStock ? "red" : "green",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
-                        backgroundColor: "white",
-                        padding: "2px 4px",
-                        fontSize: { xs: "0.7rem", sm: "0.8rem" }, // Ajuste para diferentes tamaños
-                    }}
+                    variant="body1"
+                    color="primary"
+                    sx={{ textAlign: "center", fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.15rem" } }}
                 >
-                    {stock && stock > 0
-                        ? `Stock: ${stock} ${isLowStock ? "(Bajo)" : "disponibles"}`
-                        : "Agotado"}
+                    Venta: ${price?.toLocaleString()}
                 </Typography>
-
                 <Box
                     sx={{
                         position: "absolute",
@@ -274,8 +271,9 @@ const ProductCard: React.FC<IProduct> = ({
                     <IconButton
                         onClick={handleOpenModal}
                         aria-label="edit"
+                        
                         color="primary"
-                        sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }} // Tamaño de íconos ajustado
+                        sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
                     >
                         <EditIcon fontSize="inherit" />
                     </IconButton>
@@ -283,20 +281,45 @@ const ProductCard: React.FC<IProduct> = ({
                         aria-label="delete"
                         color="secondary"
                         onClick={handleOpenDeleteModal}
-                        sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }} // Tamaño de íconos ajustado
+                        sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
                     >
                         <DeleteIcon fontSize="inherit" />
                     </IconButton>
                 </Box>
-
-                {stock && stock > 0 && (
+                {stock && stock > 0 ? (
+                    <Chip
+                        label={`Stock: ${stock} ${isLowStock ? "(Bajo)" : "disponibles"}`}
+                        color={isLowStock ? "error" : "success"}
+                        sx={{
+                            position: "absolute",
+                            left: 8,
+                            top: 8,
+                            fontSize: { xs: "0.7rem", sm: "0.8rem" },
+                            fontWeight: "bold",
+                        }}
+                    />
+                ) : (
+                    <Chip
+                        label="Agotado"
+                        color="error"
+                        sx={{
+                            position: "absolute",
+                            left: 8,
+                            top: 8,
+                            fontSize: { xs: "0.7rem", sm: "0.8rem" },
+                            fontWeight: "bold",
+                        }}
+                    />
+                )}
+                
+                {(stock && stock > 0) && !isStat ? (
                     <Stack
                         direction="row"
                         spacing={1}
                         justifyContent="center"
-                        flexWrap={"wrap"}
+                        flexWrap="wrap"
                         alignItems="center"
-                        sx={{ marginTop: "8px" }} // Espaciado ajustado
+                        sx={{ marginTop: "12px" }}
                     >
                         <IconButton
                             disabled={stock === 0 || findProduct?._id === _id}
@@ -307,7 +330,7 @@ const ProductCard: React.FC<IProduct> = ({
                             }}
                             aria-label="reducir stock"
                             color="secondary"
-                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }} // Tamaño de ícono ajustado
+                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
                         >
                             <RemoveIcon fontSize="inherit" />
                         </IconButton>
@@ -317,29 +340,30 @@ const ProductCard: React.FC<IProduct> = ({
                             startIcon={<ShoppingCartIcon />}
                             onClick={addToCart}
                             disabled={stock === 0 || findProduct?._id === _id}
-                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }} // Tamaño de texto ajustado
+                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
                         >
                             Añadir {productQuantity > 0 && `(${productQuantity})`}
                         </Button>
                         <IconButton
                             disabled={stock === 0 || findProduct?._id === _id}
                             onClick={() => {
-                                if (productQuantity < stock) {
+                                if (stock && productQuantity < stock) {
                                     setProductQuantity(productQuantity + 1);
                                 }
                             }}
                             aria-label="aumentar stock"
                             color="primary"
-                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }} // Tamaño de ícono ajustado
+                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
                         >
                             <AddIcon fontSize="inherit" />
                         </IconButton>
                     </Stack>
-                )}
+                ): null}
             </CardContent>
         </CardActionArea>
     </Card>
 </Grid>
+
 
 
             {/* Modal para editar producto */}
@@ -380,7 +404,20 @@ const ProductCard: React.FC<IProduct> = ({
                             sx={{ mb: 2 }}
                         />
                         <TextField
-                            label="Precio"
+                            label="Precio de compra"
+                            type="number"
+                            variant="outlined"
+                            fullWidth
+                            value={editProduct.buyPrice || null}
+                            onChange={(e) =>
+                                handleEditChange("buyPrice", Number(e.target.value))
+                            }
+                            error={!!formErrors.price}
+                            helperText={formErrors.price}
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            label="Precio de venta"
                             type="number"
                             variant="outlined"
                             fullWidth

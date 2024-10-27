@@ -32,8 +32,9 @@ const Products: React.FC = () => {
     const [open, setOpen] = useState<boolean>(false);
     const [newProduct, setNewProduct] = useState<IProduct>({
         name: "",
-        price: 0,
-        stock: 0,
+        price: null,
+        buyPrice: null,
+        stock: null,
         category: "Salud",
     });
     const [image, setImage] = useState<File | null>(null);
@@ -158,84 +159,95 @@ const Products: React.FC = () => {
                 justifyContent="center"
             >
                 <Grid
-                    item
-                    xs={12}
-                    md={8}
-                    lg={6}
-                    style={{ marginBottom: "20px" }}
-                >
-                    <TextField
-                        fullWidth
-                        label="Buscar productos"
-                        variant="outlined"
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton>
-                                        <SearchIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                </Grid>
-                <Grid
-                    item
-                    xs={12}
-                    md={8}
-                    lg={6}
-                    style={{ marginBottom: "20px" }}
-                >
-                    <Grid container spacing={2}>
-                        {/* Filtro de precio */}
-                        <Grid item xs={6}>
-                            <FormControl fullWidth>
-                                <InputLabel>Ordenar por precio</InputLabel>
-                                <Select
-                                    value={sortByPrice}
-                                    onChange={handlePriceSort}
-                                >
-                                    <MenuItem value="asc">
-                                        Precio: Menor a Mayor
-                                    </MenuItem>
-                                    <MenuItem value="desc">
-                                        Precio: Mayor a Menor
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <FormControl fullWidth>
-                                <InputLabel>Filtrar por categoría</InputLabel>
-                                <Select
-                                    value={filterByCategory}
-                                    onChange={handleCategoryFilter}
-                                >
-                                    <MenuItem value="">
-                                        Todas las categorías
-                                    </MenuItem>
-                                    <MenuItem value="Salud">Salud</MenuItem>
-                                    <MenuItem value="Belleza">Belleza</MenuItem>
-                                    <MenuItem value="Perfumes">
-                                        Perfumes
-                                    </MenuItem>
-                                    <MenuItem value="Accesorios">
-                                        Accesorios
-                                    </MenuItem>
-                                    <MenuItem value="Tenis">Tenis</MenuItem>
-                                    <MenuItem value="Camisas/Camisetas">
-                                        Camisas/Camisetas
-                                    </MenuItem>
-                                    <MenuItem value="Pantalones">
-                                        Pantalones
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                    </Grid>
-                </Grid>
+    container
+    spacing={2}
+    paddingTop="20px"
+    paddingX="20px"
+    justifyContent="center"
+    alignItems="center"
+    marginBottom={"20px"}
+>
+    {/* Campo de búsqueda */}
+    <Grid item xs={12} md={6} lg={4}>
+        <TextField
+            fullWidth
+            label="Buscar productos"
+            variant="outlined"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Escribe para buscar"
+            InputProps={{
+                endAdornment: (
+                    <InputAdornment position="end">
+                        <IconButton>
+                            <SearchIcon />
+                        </IconButton>
+                    </InputAdornment>
+                ),
+            }}
+            sx={{
+                bgcolor: "background.paper",
+                borderRadius: 2,
+                "& .MuiOutlinedInput-root": {
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    "&:hover fieldset": {
+                        borderColor: "primary.main",
+                    },
+                },
+            }}
+        />
+    </Grid>
+
+    {/* Filtro de orden por precio */}
+    <Grid item xs={12} sm={6} md={3}>
+        <FormControl fullWidth variant="outlined">
+            <InputLabel>Ordenar por precio</InputLabel>
+            <Select
+                value={sortByPrice}
+                onChange={handlePriceSort}
+                label="Ordenar por precio"
+                sx={{
+                    bgcolor: "background.paper",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    borderRadius: 2,
+                }}
+            >
+                <MenuItem value="asc">Menor a Mayor</MenuItem>
+                <MenuItem value="desc">Mayor a Menor</MenuItem>
+            </Select>
+        </FormControl>
+    </Grid>
+
+    {/* Filtro de categoría */}
+    <Grid item xs={12} sm={6} md={3}>
+        <FormControl fullWidth variant="outlined">
+            <InputLabel>Categoría</InputLabel>
+            <Select
+                value={filterByCategory}
+                onChange={handleCategoryFilter}
+                label="Categoría"
+                sx={{
+                    bgcolor: "background.paper",
+                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                    borderRadius: 2,
+                }}
+            >
+                <MenuItem value="">Todas</MenuItem>
+                <MenuItem value="Salud">Salud</MenuItem>
+                <MenuItem value="Belleza">Belleza</MenuItem>
+                <MenuItem value="Perfumes">Perfumes</MenuItem>
+                <MenuItem value="Accesorios">Accesorios</MenuItem>
+                <MenuItem value="Tenis">Tenis</MenuItem>
+                <MenuItem value="Camisas/Camisetas">Camisas/Camisetas</MenuItem>
+                <MenuItem value="Pantalones">Pantalones</MenuItem>
+            </Select>
+        </FormControl>
+    </Grid>
+</Grid>
+
+
+                
+                
                 <Grid container spacing={4} justifyContent="center" marginBottom={"100px"}>
                     {filteredProducts.map((product) => (
                         <ProductCard
@@ -247,6 +259,8 @@ const Products: React.FC = () => {
                             key={product._id}
                             picture={product.picture}
                             reload={getProducts}
+                            buyPrice={product.buyPrice}
+                            isStat={false}
                         />
                     ))}
                 </Grid>
@@ -305,10 +319,21 @@ const Products: React.FC = () => {
                             <TextField
                                 fullWidth
                                 margin="normal"
-                                label="Precio"
+                                label="Precio de compra"
                                 name="price"
                                 type="number"
                                 value={newProduct.price}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        <Grid item sm={6} xs={12}>
+                            <TextField
+                                fullWidth
+                                margin="normal"
+                                label="Precio de venta"
+                                name="buyPrice"
+                                type="number"
+                                value={newProduct.buyPrice}
                                 onChange={handleChange}
                             />
                         </Grid>
@@ -323,7 +348,7 @@ const Products: React.FC = () => {
                                 onChange={handleChange}
                             />
                         </Grid>
-                        <Grid item sm={6} xs={12}>
+                        <Grid item sm={12} xs={12}>
                             <FormControl fullWidth margin="normal">
                                 <InputLabel>Categoría</InputLabel>
                                 <Select
