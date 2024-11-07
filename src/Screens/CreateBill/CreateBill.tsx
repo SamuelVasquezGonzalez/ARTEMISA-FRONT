@@ -252,7 +252,7 @@ const ReceiptPage = () => {
                             label="Editar precio"
                             type="number"
                             value={product.price || ""}
-                            onChange={(e) => handlePriceChange(product?._id, e.target.value)}
+                            onChange={(e) => handlePriceChange(product?._id || "error", e.target.value)}
                             inputProps={{ min: 0, step: 0.01 }}
                             size="small"
                             variant="outlined"
