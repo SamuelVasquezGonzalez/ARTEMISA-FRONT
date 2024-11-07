@@ -6,8 +6,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 20px ;
     border-radius: 12px;
     padding: 10px;
     max-height: 300px;
+    min-height: 235px;
 }

@@ -23,7 +23,12 @@ export type SuccessT = {
     data: dataType, 
     accessToken?: string,
     _id?: string
-    clientName?: string
+    clientName?: string,
+    pagination?: {
+        currentPage: number,
+        totalPages: number,
+        totalProducts: number,
+    },
 }
 
 export type LoginT = {
@@ -47,7 +52,7 @@ export const getData = async ({token = "", path}: {token?: string, path: string}
         if (!response.ok) {
             throw new Error(data.message || "Error desconocido")
         } else {
-            return {ok: true, data: data.data}
+            return {ok: true, data: data.data, pagination: data.pagination}
         }
     } catch (err: unknown) {
         let errorMessage = "Error desconocido"

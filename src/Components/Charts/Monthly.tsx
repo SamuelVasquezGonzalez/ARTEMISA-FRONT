@@ -23,6 +23,7 @@ const MonthlySalesChart: React.FC = () => {
             backgroundColor: string[];
         }[],
     });
+    const [loading, onLoading] = useState<boolean>(true)
 
     const token = localStorage.getItem("token") || undefined;
 
@@ -54,6 +55,7 @@ const MonthlySalesChart: React.FC = () => {
                         },
                     ],
                 });
+                
             } catch (error) {
                 console.error('Error fetching monthly sales data:', error);
             }
@@ -64,6 +66,12 @@ const MonthlySalesChart: React.FC = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        if(data){
+            onLoading(false)
+        }
+    }, [data])
+
     const options = {
         responsive: true,
         scales: {
@@ -73,7 +81,7 @@ const MonthlySalesChart: React.FC = () => {
         },
     };
 
-    return <Bar data={data} options={options} />;
+    return loading ? <h2>No hay datos aún</h2>: <Bar data={data} options={options} />;
 };
 
 export default MonthlySalesChart;

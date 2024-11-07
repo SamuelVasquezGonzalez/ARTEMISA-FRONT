@@ -49,6 +49,7 @@ export interface IProduct {
     created?: Date;
     reload?: () => void;
     isStat?: boolean;
+    code?: number
 }
 
 export interface IProductSale extends IProduct {
@@ -65,6 +66,7 @@ const ProductCard: React.FC<IProduct> = ({
     reload,
     buyPrice,
     isStat,
+    code
 }) => {
     const { productsState, addProduct } = useProducts();
     const [productQuantity, setProductQuantity] = useState<number>(1);
@@ -197,7 +199,7 @@ const ProductCard: React.FC<IProduct> = ({
 
     return (
         <>
-            <Grid item xs={6} sm={6} md={4} lg={3} key={_id}>
+            <Grid item xs={5} sm={5} md={4} lg={3} key={_id}>
                 <Card
                     sx={{
                         width: "100%",
@@ -214,7 +216,6 @@ const ProductCard: React.FC<IProduct> = ({
                     }}
                 >
                     <CardActionArea
-                        onClick={() => console.log(`Clicked product: ${_id}`)}
                     >
                         <CardMedia
                             component="img"
@@ -238,7 +239,7 @@ const ProductCard: React.FC<IProduct> = ({
                                 sx={{
                                     color: "#333",
                                     textAlign: "center",
-                                    fontSize: { xs: "1rem", sm: "1.25rem" },
+                                    fontSize: { xs: "1rem", sm: "1rem" },
                                 }}
                             >
                                 {name}
@@ -260,7 +261,7 @@ const ProductCard: React.FC<IProduct> = ({
                                 sx={{
                                     textAlign: "center",
                                     fontWeight: "bold",
-                                    fontSize: { xs: "1rem", sm: "1.15rem" },
+                                    fontSize: { xs: "1rem", sm: "1rem" },
                                 }}
                             >
                                 Compra: ${buyPrice?.toLocaleString()}
@@ -272,7 +273,7 @@ const ProductCard: React.FC<IProduct> = ({
                                 sx={{
                                     textAlign: "center",
                                     fontWeight: "bold",
-                                    fontSize: { xs: "1rem", sm: "1.15rem" },
+                                    fontSize: { xs: "1rem", sm: "1rem" },
                                 }}
                             >
                                 Venta: ${price?.toLocaleString()}
@@ -342,6 +343,20 @@ const ProductCard: React.FC<IProduct> = ({
                                 />
                             )}
 
+<Chip
+                                    label={`#${code}`}
+                                    sx={{
+                                        position: "absolute",
+                                        left: 8,
+                                        top: 45,
+                                        fontSize: {
+                                            xs: "0.7rem",
+                                            sm: "0.8rem",
+                                        },
+                                        fontWeight: "bold",
+                                    }}
+                                />
+
                             {stock && stock > 0 && !isStat ? (
                                 <Stack
                                     direction={{ xs: "column", sm: "row" }} // Cambiar a columna en pantallas pequeñas
@@ -386,7 +401,7 @@ const ProductCard: React.FC<IProduct> = ({
                                         sx={{
                                             fontSize: {
                                                 xs: "0.8rem",
-                                                sm: "1rem",
+                                                sm: ".8rem",
                                             },
                                         }}
                                     >

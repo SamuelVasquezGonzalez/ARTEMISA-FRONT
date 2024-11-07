@@ -11,6 +11,7 @@ interface ProductsContextType {
     updateProductQuantity: (productId: string, quantity: number) => void;
     removeProduct: (productId: string) => void;
     clearProducts: () => void;
+    updateProductPrice: (productId: string, price: number) => void;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
@@ -139,6 +140,34 @@ const removeProduct = (productId: string) => {
         })
     }
 
+    const updateProductPrice = (productId: string, price: number) => {
+        setProductsState((prevState) => {
+            const updatedProducts = prevState.products.map((product) => {
+                if (product._id === productId) {
+                    return {
+                        ...product,
+                        price // Actualizamos solo el precio
+                    };
+                }
+                return product;
+            });
+    
+            const updatedTotal = updatedProducts.reduce((sum, item) => {
+                if (item && item.price && item.quantity) {
+                    return sum + item.price * item.quantity;
+                }
+                return sum;
+            }, 0);
+    
+            return {
+                ...prevState,
+                products: updatedProducts,
+                totalPrice: updatedTotal
+            };
+        });
+    };
+    
+
     useEffect(() => {
         const localStorageProducts: string | null = localStorage.getItem("cart");
 
@@ -160,7 +189,7 @@ const removeProduct = (productId: string) => {
     }, [productsState, isInitialized]);
 
     return (
-        <ProductsContext.Provider value={{ productsState, setProductsState, addProduct, updateProductQuantity, removeProduct, clearProducts }}>
+        <ProductsContext.Provider value={{ productsState, setProductsState, addProduct, updateProductQuantity, removeProduct, clearProducts, updateProductPrice }}>
             {children}
         </ProductsContext.Provider>
     );

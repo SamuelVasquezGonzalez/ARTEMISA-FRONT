@@ -10,6 +10,7 @@ import { getData } from "../../Service/Api";
 
 const Stats: React.FC = () => {
     const [topProducts, setTopProducts] = useState<IProductSale[]>([])
+    // const [productsWithLowStock, setProductsWithLowStock] = useState<IProductSale[]>([])
 
     const token = localStorage.getItem("token") || undefined
 
@@ -22,11 +23,20 @@ const Stats: React.FC = () => {
             }
         }
     }
+    
+    // const getProductsWithLowStock = async () => {
+    //     const response = await getData({token, path: "/v1/stats/lowstock"})
 
-    console.log(topProducts)
+    //     if(response.ok){
+    //         if("data" in response){
+    //             setProductsWithLowStock(response.data as IProductSale[])
+    //         }
+    //     }
+    // }
     
     useEffect(() => {
         getProducts()
+        // getProductsWithLowStock()
     }, [])
 
 
@@ -40,6 +50,7 @@ const Stats: React.FC = () => {
                 paddingTop="80px"
                 padding="80px 20px 0 20px"
                 justifyContent="center"
+                gap={5}
             >
                 <div className="chart-item">
                     <MonthlySalesChart />
@@ -51,7 +62,7 @@ const Stats: React.FC = () => {
                     <SalesByPaymentTypeChart />
                 </div>
 
-                <h2 style={{marginTop: "20px"}}>
+                <h2 style={{marginTop: "20px", width: "100%", textAlign: "center"}}>
                     Productos más facturados
                 </h2>
 
@@ -67,6 +78,7 @@ const Stats: React.FC = () => {
                             picture={product.picture}
                             reload={getProducts}
                             buyPrice={product.buyPrice}
+                            code={product.code}
                             isStat={true}
                         />
                     ))}

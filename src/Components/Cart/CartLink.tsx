@@ -20,6 +20,7 @@ export interface ISales {
     products: IProductSale[],
     moneyReturned?: number
     consecutive?: number
+    isForAll?: boolean
 }
 
 

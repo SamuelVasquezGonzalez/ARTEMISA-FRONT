@@ -22,6 +22,7 @@ const SalesByCategoryChart: React.FC = () => {
         labels: [],
         datasets: [],
     });
+    const [loading, onLoading] = useState<boolean>(true)
 
     const token = localStorage.getItem("token") || undefined
 
@@ -35,8 +36,10 @@ const SalesByCategoryChart: React.FC = () => {
                     }
                 });
                 const result = await response.json();
-    
+
                 const salesData: SalesByCategoryData[] = result.data;
+
+                if(salesData.length === 0) throw new Error(result.message)
     
                 const labels = salesData.map(item => item.category[0]);
                 const quantities = salesData.map(item => item.totalQuantity);
@@ -53,11 +56,18 @@ const SalesByCategoryChart: React.FC = () => {
                         },
                     ],
                 });
+                onLoading(false)
             } catch (error) {
                 console.error('Error fetching sales by category data:', error);
             }
         }
     };
+
+    // useEffect(() => {
+    //     if(data){
+    //         
+    //     }
+    // }, [data])
 
     useEffect(() => {
         fetchData();
@@ -67,7 +77,7 @@ const SalesByCategoryChart: React.FC = () => {
         responsive: true,
     };
 
-    return <Pie data={data} options={options} />;
+    return loading ? <h2>No hay datos aún</h2>: <Pie data={data} options={options} />;
 };
 
 export default SalesByCategoryChart;

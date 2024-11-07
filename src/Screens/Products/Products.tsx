@@ -21,11 +21,13 @@ import Navbar from "../../Components/Navbar/Navbar";
 
 import { getData, sendFormData } from "../../Service/Api";
 import { useDropzone } from "react-dropzone";
-import ProductCard, { IProduct, IProductCategory } from "../../Components/ProductCard/ProductCard";
+import ProductCard, {
+    IProduct,
+    IProductCategory,
+} from "../../Components/ProductCard/ProductCard";
 
 const Products: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [products, setProducts] = useState<IProduct[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
     const [sortByPrice, setSortByPrice] = useState<string>("");
     const [filterByCategory, setFilterByCategory] = useState<string>("");
@@ -38,31 +40,52 @@ const Products: React.FC = () => {
         category: "Salud",
     });
     const [image, setImage] = useState<File | null>(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const token = localStorage.getItem("token") || undefined;
 
-    useEffect(() => {
-        getProducts();
-    }, []);
+    const getProducts = async (
+        page: number,
+        category: string = "",
+        searchTerm: string = ""
+    ) => {
+        try {
+            const response = await getData({
+                token,
+                path: `/v1/products/filtered?page=${page}&limit=10&category=${category}&searchTerm=${searchTerm}`,
+            });
 
-    const getProducts = async () => {
-        const response = await getData({ token, path: "/v1/products" });
-        if (response.ok && "data" in response) {
-            setProducts(response.data as IProduct[]);
-            setFilteredProducts(response.data as IProduct[]);
+            if (response.ok && "data" in response) {
+                console.log(response);
+                setFilteredProducts(response.data as IProduct[]);
+                setTotalPages(response?.pagination?.totalPages || 1);
+            }
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        }
+    };
+
+    useEffect(() => {
+        getProducts(page, filterByCategory, searchTerm);
+    }, [page, filterByCategory, searchTerm]);
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage > 0 && newPage <= totalPages) {
+            setPage(newPage);
         }
     };
 
     const handlePriceSort = (event: SelectChangeEvent<string>) => {
         const order = event.target.value; // Aquí ya no es necesario hacer casting a string
-    
+
         setSortByPrice(order);
-    
+
         const sortedProducts = [...filteredProducts];
-    
+
         // Ordenar los productos dependiendo de la opción seleccionada
         if (order === "asc") {
             sortedProducts.sort((a, b) => {
@@ -77,21 +100,17 @@ const Products: React.FC = () => {
                 return priceB - priceA;
             });
         }
-    
+
         setFilteredProducts(sortedProducts);
     };
-    
+
     const handleCategoryFilter = (e: SelectChangeEvent<string>) => {
         const category = e.target.value as string;
-        setFilterByCategory(category);
+        setFilterByCategory(category); // Actualiza la categoría seleccionada
+    };
 
-        if (category === "") {
-            setFilteredProducts(products);
-            const filtered = products.filter((product) =>
-                product.category.includes(category)
-            );
-            setFilteredProducts(filtered);
-        }
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value); // Actualiza el término de búsqueda
     };
 
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -109,7 +128,7 @@ const Products: React.FC = () => {
         });
 
         if (response.ok) {
-            getProducts();
+            getProducts(page);
             handleClose();
         }
     };
@@ -135,19 +154,14 @@ const Products: React.FC = () => {
     const { getRootProps, getInputProps } = useDropzone({
         onDrop,
         accept: {
-            "image/*": []
+            "image/*": [],
         },
         maxFiles: 1,
     });
 
     // Filtrar productos por nombre
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        const filtered = products.filter((product) =>
-            product.name.toLowerCase().includes(e.target.value.toLowerCase())
-        );
-        setFilteredProducts(filtered);
-    };
+
+    console.log(totalPages);
 
     return (
         <>
@@ -159,96 +173,176 @@ const Products: React.FC = () => {
                 justifyContent="center"
             >
                 <Grid
-    container
-    spacing={2}
-    paddingTop="20px"
-    paddingX="20px"
-    justifyContent="center"
-    alignItems="center"
-    marginBottom={"20px"}
->
-    {/* Campo de búsqueda */}
-    <Grid item xs={12} md={6} lg={4}>
-        <TextField
-            fullWidth
-            label="Buscar productos"
-            variant="outlined"
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Escribe para buscar"
-            InputProps={{
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <IconButton>
-                            <SearchIcon />
-                        </IconButton>
-                    </InputAdornment>
-                ),
-            }}
-            sx={{
-                bgcolor: "background.paper",
-                borderRadius: 2,
-                "& .MuiOutlinedInput-root": {
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                    "&:hover fieldset": {
-                        borderColor: "primary.main",
-                    },
-                },
-            }}
-        />
-    </Grid>
+                    container
+                    spacing={2}
+                    paddingTop="20px"
+                    paddingX="20px"
+                    justifyContent="center"
+                    alignItems="center"
+                    marginBottom={"20px"}
+                >
+                    {/* Campo de búsqueda */}
+                    <Grid item xs={12} md={6} lg={4}>
+                        <TextField
+                            fullWidth
+                            label="Buscar productos"
+                            variant="outlined"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            placeholder="Escribe para buscar"
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton>
+                                            <SearchIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                            sx={{
+                                bgcolor: "background.paper",
+                                borderRadius: 2,
+                                "& .MuiOutlinedInput-root": {
+                                    boxShadow:
+                                        "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                    "&:hover fieldset": {
+                                        borderColor: "primary.main",
+                                    },
+                                },
+                            }}
+                        />
+                    </Grid>
 
-    {/* Filtro de orden por precio */}
-    <Grid item xs={12} sm={6} md={3}>
-        <FormControl fullWidth variant="outlined">
-            <InputLabel>Ordenar por precio</InputLabel>
-            <Select
-                value={sortByPrice}
-                onChange={handlePriceSort}
-                label="Ordenar por precio"
-                sx={{
-                    bgcolor: "background.paper",
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                    borderRadius: 2,
-                }}
-            >
-                <MenuItem value="asc">Menor a Mayor</MenuItem>
-                <MenuItem value="desc">Mayor a Menor</MenuItem>
-            </Select>
-        </FormControl>
-    </Grid>
+                    {/* Filtro de orden por precio */}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <FormControl fullWidth variant="outlined">
+                            <InputLabel>Ordenar por precio</InputLabel>
+                            <Select
+                                value={sortByPrice}
+                                onChange={handlePriceSort}
+                                label="Ordenar por precio"
+                                sx={{
+                                    bgcolor: "background.paper",
+                                    boxShadow:
+                                        "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                    borderRadius: 2,
+                                }}
+                            >
+                                <MenuItem value="asc">Menor a Mayor</MenuItem>
+                                <MenuItem value="desc">Mayor a Menor</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
 
-    {/* Filtro de categoría */}
-    <Grid item xs={12} sm={6} md={3}>
-        <FormControl fullWidth variant="outlined">
-            <InputLabel>Categoría</InputLabel>
-            <Select
-                value={filterByCategory}
-                onChange={handleCategoryFilter}
-                label="Categoría"
-                sx={{
-                    bgcolor: "background.paper",
-                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                    borderRadius: 2,
-                }}
-            >
-                <MenuItem value="">Todas</MenuItem>
-                <MenuItem value="Salud">Salud</MenuItem>
-                <MenuItem value="Belleza">Belleza</MenuItem>
-                <MenuItem value="Perfumes">Perfumes</MenuItem>
-                <MenuItem value="Accesorios">Accesorios</MenuItem>
-                <MenuItem value="Tenis">Tenis</MenuItem>
-                <MenuItem value="Camisas/Camisetas">Camisas/Camisetas</MenuItem>
-                <MenuItem value="Pantalones">Pantalones</MenuItem>
-            </Select>
-        </FormControl>
-    </Grid>
-</Grid>
+                    {/* Filtro de categoría */}
+                    <Grid item xs={12} sm={6} md={3}>
+                        <FormControl fullWidth variant="outlined">
+                            <InputLabel>Categoría</InputLabel>
+                            <Select
+                                value={filterByCategory}
+                                onChange={handleCategoryFilter}
+                                label="Categoría"
+                                sx={{
+                                    bgcolor: "background.paper",
+                                    boxShadow:
+                                        "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                    borderRadius: 2,
+                                }}
+                            >
+                                <MenuItem value="">Todas</MenuItem>
+                                <MenuItem value="Salud">Salud</MenuItem>
+                                <MenuItem value="Belleza">Belleza</MenuItem>
+                                <MenuItem value="Perfumes">Perfumes</MenuItem>
+                                <MenuItem value="Accesorios">
+                                    Accesorios
+                                </MenuItem>
+                                <MenuItem value="Tenis">Tenis</MenuItem>
+                                <MenuItem value="Camisas/Camisetas">
+                                    Camisas/Camisetas
+                                </MenuItem>
+                                <MenuItem value="Pantalones">
+                                    Pantalones
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
 
+                <Grid
+                    container
+                    justifyContent="center"
+                    alignItems="center"
+                    paddingX="20px"
+                    marginBottom="40px"
+                >
+                    {/* Botón de "Anterior" */}
+                    <Button
+                        variant="contained"
+                        disabled={page <= 1}
+                        onClick={() => handlePageChange(page - 1)}
+                    >
+                        Anterior
+                    </Button>
 
-                
-                
-                <Grid container spacing={4} justifyContent="center" marginBottom={"100px"}>
+                    {/* Lista de números de página con lógica para mostrar solo las cercanas */}
+                    {page > 3 && (
+                        <>
+                            <Button
+                                variant="outlined"
+                                onClick={() => handlePageChange(1)}
+                            >
+                                1
+                            </Button>
+                            <span>...</span>
+                        </>
+                    )}
+
+                    {Array.from({ length: totalPages }, (_, index) => {
+                        const pageNumber = index + 1;
+
+                        // Solo muestra las páginas cercanas a la página actual (3 páginas antes y 3 después)
+                        if (pageNumber >= page - 3 && pageNumber <= page + 3) {
+                            return (
+                                <Button
+                                    key={pageNumber}
+                                    variant="outlined"
+                                    onClick={() => handlePageChange(pageNumber)}
+                                >
+                                    {pageNumber}
+                                </Button>
+                            );
+                        }
+                        return null; // No renderiza las páginas fuera del rango
+                    })}
+
+                    {page < totalPages - 3 && (
+                        <>
+                            <span>...</span>
+                            <Button
+                                variant="outlined"
+                                onClick={() => handlePageChange(totalPages)}
+                            >
+                                {totalPages}
+                            </Button>
+                        </>
+                    )}
+
+                    {/* Botón de "Siguiente" */}
+                    <Button
+                        variant="contained"
+                        disabled={page >= totalPages}
+                        onClick={() => handlePageChange(page + 1)}
+                    >
+                        Siguiente
+                    </Button>
+                </Grid>
+
+                <Grid
+                    container
+                    spacing={4}
+                    justifyContent="center"
+                    marginBottom={"100px"}
+                >
                     {filteredProducts.map((product) => (
                         <ProductCard
                             _id={product._id}
@@ -258,13 +352,84 @@ const Products: React.FC = () => {
                             stock={product.stock}
                             key={product._id}
                             picture={product.picture}
-                            reload={getProducts}
+                            reload={() => getProducts(page)}
                             buyPrice={product.buyPrice}
                             isStat={false}
+                            code={product.code}
                         />
                     ))}
                 </Grid>
             </Grid>
+
+            <Grid
+                container
+                justifyContent="center"
+                alignItems="center"
+                paddingX="20px"
+                marginBottom="40px"
+            >
+                {/* Botón de "Anterior" */}
+                <Button
+                    variant="contained"
+                    disabled={page <= 1}
+                    onClick={() => handlePageChange(page - 1)}
+                >
+                    Anterior
+                </Button>
+
+                {/* Lista de números de página con lógica para mostrar solo las cercanas */}
+                {page > 3 && (
+                    <>
+                        <Button
+                            variant="outlined"
+                            onClick={() => handlePageChange(1)}
+                        >
+                            1
+                        </Button>
+                        <span>...</span>
+                    </>
+                )}
+
+                {Array.from({ length: totalPages }, (_, index) => {
+                    const pageNumber = index + 1;
+
+                    // Solo muestra las páginas cercanas a la página actual (3 páginas antes y 3 después)
+                    if (pageNumber >= page - 3 && pageNumber <= page + 3) {
+                        return (
+                            <Button
+                                key={pageNumber}
+                                variant="outlined"
+                                onClick={() => handlePageChange(pageNumber)}
+                            >
+                                {pageNumber}
+                            </Button>
+                        );
+                    }
+                    return null; // No renderiza las páginas fuera del rango
+                })}
+
+                {page < totalPages - 3 && (
+                    <>
+                        <span>...</span>
+                        <Button
+                            variant="outlined"
+                            onClick={() => handlePageChange(totalPages)}
+                        >
+                            {totalPages}
+                        </Button>
+                    </>
+                )}
+
+                {/* Botón de "Siguiente" */}
+                <Button
+                    variant="contained"
+                    disabled={page >= totalPages}
+                    onClick={() => handlePageChange(page + 1)}
+                >
+                    Siguiente
+                </Button>
+            </Grid>
+
             <Fab
                 color="primary"
                 aria-label="add"

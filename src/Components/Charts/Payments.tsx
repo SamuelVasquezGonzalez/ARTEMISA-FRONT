@@ -24,6 +24,7 @@ const SalesByPaymentTypeChart: React.FC = () => {
         labels: [],
         datasets: [],
     });
+    const [loading, onLoading] = useState<boolean>(true)
 
     const token = localStorage.getItem("token") || undefined
  
@@ -41,6 +42,8 @@ const SalesByPaymentTypeChart: React.FC = () => {
                 // Tipar result.data como un arreglo de SalesByPaymentTypeData
                 const paymentData: SalesByPaymentTypeData[] = result.data;
     
+                if(paymentData.length === 0) throw new Error(result.message)
+
                 const labels = paymentData.map(item => item._id); // Obtener el tipo de pago
                 const counts = paymentData.map(item => item.count); // Obtener la cantidad
     
@@ -54,6 +57,7 @@ const SalesByPaymentTypeChart: React.FC = () => {
                         },
                     ],
                 });
+                onLoading(false)
             } catch (error) {
                 console.error('Error fetching sales by payment type data:', error);
             }
@@ -68,7 +72,7 @@ const SalesByPaymentTypeChart: React.FC = () => {
         responsive: true,
     };
 
-    return <Doughnut data={data} options={options} />;
+    return loading ? <h2>No hay datos aún</h2>: <Doughnut data={data} options={options} />;
 };
 
 export default SalesByPaymentTypeChart;

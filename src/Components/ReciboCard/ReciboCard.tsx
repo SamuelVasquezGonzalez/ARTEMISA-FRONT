@@ -29,15 +29,19 @@ const ReciboCard: React.FC<ReciboCardProps> = ({ recibo }) => {
         >
             <CardContent
                 sx={{
-                    // Centramos solo en pantallas de 400px o menos
                     "@media (max-width: 400px)": {
-                        textAlign: "center", // Centra los textos principales
+                        textAlign: "center",
                     },
                 }}
             >
                 <Typography variant="h6" gutterBottom>
                     Recibo #{recibo.consecutive || recibo._id}
                 </Typography>
+                {recibo.isForAll && (
+                    <Typography variant="body1" color="success">
+                        Fue venta al por mayor.
+                    </Typography>
+                )}
                 <Typography variant="body1">
                     Total: ${recibo.totalPrice.toLocaleString()}
                 </Typography>

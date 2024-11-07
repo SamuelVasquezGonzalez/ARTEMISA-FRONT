@@ -12,6 +12,7 @@ import {
     CardMedia,
     Divider,
     TextField,
+    Checkbox,
 } from "@mui/material";
 import { MoneyOff, Payment, CreditCard } from '@mui/icons-material';
 import { useNavigate } from "react-router-dom";
@@ -22,30 +23,40 @@ import toast, { Toaster } from "react-hot-toast";
 const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL;
 
 const ReceiptPage = () => {
-    const { productsState, clearProducts } = useProducts();
+    const { productsState, clearProducts, updateProductPrice } = useProducts();
     const [payType, setPayType] = useState<PayType>("Efectivo");
     const [amountReceived, setAmountReceived] = useState<number | null>(null);
     const [receipt, setReceipt] = useState<ISales | null>(null);
     const [isSaved, setIsSaved] = useState<boolean>(true);
     const [lastConsecutive, setLastConsecutive] = useState<number>(0);
+    const [isWholesale, setIsWholesale] = useState<boolean>(false); // Estado para checkbox
+    const [customTotalPrice, setCustomTotalPrice] = useState<number | null>(null);
     const navigate = useNavigate();
 
     const token = localStorage.getItem("token") || undefined;
     const success = (message: string) => toast.success(message);
     const error = (message: string) => toast.error(message);
 
+    const handlePriceChange = (productId: string, newPrice: string) => {
+        const price = parseFloat(newPrice);
+        if (!isNaN(price) && price >= 0) {
+            updateProductPrice(productId, price);
+        }
+    };
+
+
     const handleContinue = () => {
-        const changeToReturn =
-            (amountReceived && amountReceived - productsState.totalPrice) || 0;
+        const totalPrice = isWholesale && customTotalPrice !== null ? customTotalPrice : productsState.totalPrice;
+        const changeToReturn = (amountReceived && amountReceived - totalPrice) || 0;
         const receiptData = {
-            totalPrice: productsState.totalPrice,
+            totalPrice,
             created: new Date(),
             payType,
             products: productsState.products,
             moneyReturned: changeToReturn,
+            isForAll: isWholesale
         };
         setReceipt(receiptData);
-       
     };
 
 
@@ -55,16 +66,11 @@ const ReceiptPage = () => {
         }
     }, [receipt])
 
-    const changeToReturn =
-        amountReceived && amountReceived - productsState.totalPrice;
+    const changeToReturn = amountReceived && amountReceived - (isWholesale && customTotalPrice !== null ? customTotalPrice : productsState.totalPrice);
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        if (value === "") {
-            setAmountReceived(null);
-        } else {
-            setAmountReceived(parseFloat(value) || null);
-        }
+        setAmountReceived(value === "" ? null : parseFloat(value) || null);
     };
 
     const handleSubmit = async () => {
@@ -93,10 +99,9 @@ const ReceiptPage = () => {
     
                 const data = await response.json();
     
-                console.log(data);
                 if (response.ok) {
                     const lastConsecutive = data.data.consecutive;
-                    setLastConsecutive(lastConsecutive);
+                    setLastConsecutive(lastConsecutive || 1);
                 } else {
                     console.error('Error en la respuesta:', data);
                 }
@@ -113,8 +118,8 @@ const ReceiptPage = () => {
     }, []);
 
     const isAmountValid =
-        amountReceived !== null &&
-        amountReceived >= productsState.totalPrice;
+    amountReceived !== null &&
+    amountReceived >= (isWholesale && customTotalPrice !== null ? customTotalPrice : productsState.totalPrice);
 
     if (productsState.products.length === 0) {
         return (
@@ -132,10 +137,30 @@ const ReceiptPage = () => {
                     Generar Recibo #{lastConsecutive + 1}
                 </Typography>
 
+                <Box display="flex" alignItems="center" mb={2} ml={21}>
+                    <Checkbox
+                        checked={isWholesale}
+                        onChange={(e) => setIsWholesale(e.target.checked)}
+                        color="primary"
+                    />
+                    <Typography variant="body1">Es venta al por mayor</Typography>
+                </Box>
+
+
                 <Box mb={2} display="flex" justifyContent="center">
-                    <Typography variant="h6">
-                        Total a pagar: ${productsState.totalPrice.toLocaleString()}
-                    </Typography>
+                    {isWholesale ? (
+                        <TextField
+                            label="Total a pagar"
+                            type="number"
+                            value={customTotalPrice || ""}
+                            onChange={(e) => setCustomTotalPrice(parseFloat(e.target.value))}
+                            fullWidth
+                        />
+                    ) : (
+                        <Typography variant="h6">
+                            Total a pagar: ${productsState.totalPrice.toLocaleString()}
+                        </Typography>
+                    )}
                 </Box>
 
                 <Box mb={2} display="flex" justifyContent="center" flexWrap={"wrap"}>
@@ -171,18 +196,12 @@ const ReceiptPage = () => {
                             onChange={handleAmountChange}
                             fullWidth
                         />
-                        {amountReceived !== null &&
-                            amountReceived < productsState.totalPrice && (
-                                <Alert severity="error">
-                                    El monto recibido no puede ser menor al total.
-                                </Alert>
-                            )}
-                        {amountReceived !== null &&
-                            amountReceived > productsState.totalPrice && (
-                                <Typography>
-                                    Cambio a devolver: ${changeToReturn?.toLocaleString()}
-                                </Typography>
-                            )}
+                        {amountReceived !== null && amountReceived < (isWholesale && customTotalPrice !== null ? customTotalPrice : productsState.totalPrice) && (
+                            <Alert severity="error">El monto recibido no puede ser menor al total.</Alert>
+                        )}
+                        {amountReceived !== null && amountReceived > (isWholesale && customTotalPrice !== null ? customTotalPrice : productsState.totalPrice) && (
+                            <Typography>Cambio a devolver: ${changeToReturn?.toLocaleString()}</Typography>
+                        )}
                     </Box>
                 )}
 
@@ -200,37 +219,48 @@ const ReceiptPage = () => {
 
                 {/* Lista de productos a facturar */}
                 <Box display="flex" overflow="auto" marginTop={2}>
-                    {productsState.products.map((product) => (
-                        <Card
-                            key={product._id}
-                            style={{
-                                marginRight: 10,
-                                minWidth: 80,
-                                maxWidth: 100,
-                            }}
+                {productsState.products.map((product) => (
+                <Card
+                    key={product._id}
+                    style={{
+                        marginRight: 10,
+                        minWidth: 80,
+                        maxWidth: 140,
+                    }}
+                >
+                    <CardMedia
+                        component="img"
+                        height="70"
+                        image={product?.picture?.url}
+                        alt={product.name}
+                    />
+                    <CardContent>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
                         >
-                            <CardMedia
-                                component="img"
-                                height="70"
-                                image={product?.picture?.url}
-                                alt={product.name}
-                            />
-                            <CardContent>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                >
-                                    {product.name}
-                                </Typography>
-                                <Typography
-                                    variant="body2"
-                                    color="text.primary"
-                                >
-                                    ${product?.price && product?.price.toLocaleString()} x {product.quantity}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    ))}
+                            {product.name}
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            color="text.primary"
+                        >
+                            ${product?.price && product?.price.toLocaleString()} x {product.quantity}
+                        </Typography>
+                        {/* Campo de entrada para editar el precio */}
+                        <TextField
+                            label="Editar precio"
+                            type="number"
+                            value={product.price || ""}
+                            onChange={(e) => handlePriceChange(product?._id, e.target.value)}
+                            inputProps={{ min: 0, step: 0.01 }}
+                            size="small"
+                            variant="outlined"
+                            style={{ marginTop: 8 }}
+                        />
+                    </CardContent>
+                </Card>
+            ))}
                 </Box>
 
                 {receipt && (
