@@ -159,10 +159,7 @@ const Products: React.FC = () => {
         maxFiles: 1,
     });
 
-    // Filtrar productos por nombre
-
-    console.log(totalPages);
-
+ 
     return (
         <>
             <Navbar />
@@ -235,7 +232,7 @@ const Products: React.FC = () => {
                     </Grid>
 
                     {/* Filtro de categoría */}
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid item xs={12} sm={5} md={3}>
                         <FormControl fullWidth variant="outlined">
                             <InputLabel>Categoría</InputLabel>
                             <Select
@@ -265,6 +262,13 @@ const Products: React.FC = () => {
                                 </MenuItem>
                             </Select>
                         </FormControl>
+
+                    </Grid>
+                    <Grid  item xs={12} sm={1}>
+                        <a href="http://localhost:3000/v1/inventory/download" download="Inventario-Artemisa.xlsx">
+  Descargar inventario
+</a>
+
                     </Grid>
                 </Grid>
 
