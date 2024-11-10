@@ -25,6 +25,7 @@ import ProductCard, {
     IProduct,
     IProductCategory,
 } from "../../Components/ProductCard/ProductCard";
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL;
 
 const Products: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -265,7 +266,7 @@ const Products: React.FC = () => {
 
                     </Grid>
                     <Grid  item xs={12} sm={1}>
-                        <a href="http://localhost:3000/v1/inventory/download" download="Inventario-Artemisa.xlsx">
+                        <a href={BACKEND_URL + "/v1/inventory/download"} download="Inventario-Artemisa.xlsx">
   Descargar inventario
 </a>
 
