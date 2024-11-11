@@ -63,12 +63,6 @@ const SalesByCategoryChart: React.FC = () => {
         }
     };
 
-    // useEffect(() => {
-    //     if(data){
-    //         
-    //     }
-    // }, [data])
-
     useEffect(() => {
         fetchData();
     }, []);

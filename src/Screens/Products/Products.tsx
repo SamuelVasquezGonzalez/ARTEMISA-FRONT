@@ -29,6 +29,8 @@ const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL;
 
 const Products: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
+    const [findProduct, setFindProducto] = useState<IProduct[]>([])
+    const [searchCode, setSearchCode] = useState<number | null>(null);
     const [filteredProducts, setFilteredProducts] = useState<IProduct[]>([]);
     const [sortByPrice, setSortByPrice] = useState<string>("");
     const [filterByCategory, setFilterByCategory] = useState<string>("");
@@ -52,16 +54,16 @@ const Products: React.FC = () => {
     const getProducts = async (
         page: number,
         category: string = "",
-        searchTerm: string = ""
+        searchTerm: string = "",
+        searchCode: number | null = null
     ) => {
         try {
             const response = await getData({
                 token,
-                path: `/v1/products/filtered?page=${page}&limit=10&category=${category}&searchTerm=${searchTerm}`,
+                path: `/v1/products/filtered?page=${page}&limit=10&category=${category}&searchTerm=${searchTerm}&code=${searchCode}`,
             });
 
             if (response.ok && "data" in response) {
-                console.log(response);
                 setFilteredProducts(response.data as IProduct[]);
                 setTotalPages(response?.pagination?.totalPages || 1);
             }
@@ -69,10 +71,37 @@ const Products: React.FC = () => {
             console.error("Error fetching products:", error);
         }
     };
+    
+    const findExistProduct = async (
+        page: number,
+        searchTerm: string = "",
+    ) => {
+        try {
+            const response = await getData({
+                token,
+                path: `/v1/products/filtered?page=${page}&limit=10&category=${""}&searchTerm=${searchTerm}&code=${'null'}`,
+            });
+
+            if (response.ok && "data" in response) {
+                setFindProducto(response.data as IProduct[]);
+            }
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        }
+    };
 
     useEffect(() => {
-        getProducts(page, filterByCategory, searchTerm);
-    }, [page, filterByCategory, searchTerm]);
+        getProducts(page, filterByCategory, searchTerm, searchCode);
+    }, [page, filterByCategory, searchTerm, searchCode]);
+    
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            findExistProduct(page, newProduct.name);
+        }, 800);
+    
+        // Limpiar el timeout si newProduct.name cambia antes de 1500ms
+        return () => clearTimeout(timer);
+    }, [newProduct.name]);
 
     const handlePageChange = (newPage: number) => {
         if (newPage > 0 && newPage <= totalPages) {
@@ -112,6 +141,10 @@ const Products: React.FC = () => {
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(e.target.value); // Actualiza el término de búsqueda
+    };
+    
+    const handleSearchCode = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchCode(parseInt(e.target.value)); // Actualiza el término de búsqueda
     };
 
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -210,6 +243,37 @@ const Products: React.FC = () => {
                             }}
                         />
                     </Grid>
+                    <Grid item xs={12} md={6} lg={4}>
+                        <TextField
+                            fullWidth
+                            label="Buscar por codigo"
+                            type="number"
+                            variant="outlined"
+                            value={searchCode}
+                            onChange={handleSearchCode}
+                            placeholder="Escribe el codigo de un producto"
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton>
+                                            <SearchIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                            sx={{
+                                bgcolor: "background.paper",
+                                borderRadius: 2,
+                                "& .MuiOutlinedInput-root": {
+                                    boxShadow:
+                                        "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                                    "&:hover fieldset": {
+                                        borderColor: "primary.main",
+                                    },
+                                },
+                            }}
+                        />
+                    </Grid>
 
                     {/* Filtro de orden por precio */}
                     <Grid item xs={12} sm={6} md={3}>
@@ -266,7 +330,7 @@ const Products: React.FC = () => {
 
                     </Grid>
                     <Grid  item xs={12} sm={1}>
-                        <a href={BACKEND_URL + "/v1/inventory/download"} download="Inventario-Artemisa.xlsx">
+                        <a style={{textAlign: "center", width: "100%", display: "block"}} href={BACKEND_URL + "/v1/inventory/download"} download="Inventario-Artemisa.xlsx">
   Descargar inventario
 </a>
 
@@ -470,6 +534,7 @@ const Products: React.FC = () => {
                         gutterBottom
                         textAlign={"center"}
                         fontWeight={"bold"}
+                        
                     >
                         Añadir nuevo producto
                     </Typography>
@@ -483,30 +548,33 @@ const Products: React.FC = () => {
                                 name="name"
                                 value={newProduct.name}
                                 onChange={handleChange}
+                                error={findProduct.length === 1}
+                                helperText={findProduct.length === 1 ? `Ya existe un producto con este nombre (#${findProduct[0].code})`: ""}
                             />
                         </Grid>
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 fullWidth
                                 margin="normal"
-                                label="Precio de compra"
-                                name="price"
-                                type="number"
-                                value={newProduct.price}
-                                onChange={handleChange}
-                            />
-                        </Grid>
-                        <Grid item sm={6} xs={12}>
-                            <TextField
-                                fullWidth
-                                margin="normal"
-                                label="Precio de venta"
+                                label="Compra(en cuanto lo compraste)"
                                 name="buyPrice"
                                 type="number"
                                 value={newProduct.buyPrice}
                                 onChange={handleChange}
                             />
                         </Grid>
+                        <Grid item sm={6} xs={12}>
+                            <TextField
+                                fullWidth
+                                margin="normal"
+                                label="Venta(en cuanto lo venderas)"
+                                name="price"
+                                type="number"
+                                value={newProduct.price}
+                                onChange={handleChange}
+                            />
+                        </Grid>
+                        
                         <Grid item sm={6} xs={12}>
                             <TextField
                                 fullWidth
@@ -577,6 +645,7 @@ const Products: React.FC = () => {
                         type="submit"
                         onClick={handleSubmit}
                         sx={{ marginTop: 2 }}
+                        disabled={findProduct.length > 0 || (!newProduct.name && !newProduct.buyPrice && !newProduct.price && !newProduct.stock) }
                     >
                         Añadir producto
                     </Button>

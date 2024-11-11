@@ -7,10 +7,10 @@ import SalesByCategoryChart from "../../Components/Charts/Category";
 import './Stats.css'
 import ProductCard, { IProductSale } from "../../Components/ProductCard/ProductCard";
 import { getData } from "../../Service/Api";
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL;
 
 const Stats: React.FC = () => {
     const [topProducts, setTopProducts] = useState<IProductSale[]>([])
-    // const [productsWithLowStock, setProductsWithLowStock] = useState<IProductSale[]>([])
 
     const token = localStorage.getItem("token") || undefined
 
@@ -24,19 +24,8 @@ const Stats: React.FC = () => {
         }
     }
     
-    // const getProductsWithLowStock = async () => {
-    //     const response = await getData({token, path: "/v1/stats/lowstock"})
-
-    //     if(response.ok){
-    //         if("data" in response){
-    //             setProductsWithLowStock(response.data as IProductSale[])
-    //         }
-    //     }
-    // }
-    
     useEffect(() => {
         getProducts()
-        // getProductsWithLowStock()
     }, [])
 
 
@@ -52,6 +41,12 @@ const Stats: React.FC = () => {
                 justifyContent="center"
                 gap={5}
             >
+
+                <Grid item sm={12} xs={12} md={12}>
+                <a style={{textAlign: "center", width: "100%", display: "block"}} href={BACKEND_URL + "/v1/stats/all/download"} download="Inventario-Artemisa.xlsx">
+  Descargar estadistica completa
+</a>
+                </Grid>
                 <div className="chart-item">
                     <MonthlySalesChart />
                 </div>

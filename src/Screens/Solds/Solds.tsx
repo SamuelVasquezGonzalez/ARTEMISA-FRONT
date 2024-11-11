@@ -32,7 +32,7 @@ const Solds: React.FC = () => {
         const response = await getData({ token, path: "/v1/sales/all" });
 
         if (!response.ok) {
-            console.log(response);
+            return;
         } else {
             if("data" in response){
                 setRecibos(response.data as ISales[]);

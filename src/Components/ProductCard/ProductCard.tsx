@@ -195,7 +195,6 @@ const ProductCard: React.FC<IProduct> = ({
         },
     });
 
-    console.log(isStat);
 
     return (
         <>
@@ -480,7 +479,7 @@ const ProductCard: React.FC<IProduct> = ({
                             sx={{ mb: 2 }}
                         />
                         <TextField
-                            label="Precio de compra"
+                            label="Compra(En cuanto lo compraste)"
                             type="number"
                             variant="outlined"
                             fullWidth
@@ -496,7 +495,7 @@ const ProductCard: React.FC<IProduct> = ({
                             sx={{ mb: 2 }}
                         />
                         <TextField
-                            label="Precio de venta"
+                            label="Venta(En cuanto lo venderas)"
                             type="number"
                             variant="outlined"
                             fullWidth
